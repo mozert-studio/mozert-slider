@@ -1,0 +1,73 @@
+{
+  "name": "@mozert-studio/mozert-slider",
+  "version": "1.1.0",
+  "description": "Mozert Slider: a dependency-free, accessible carousel with 3D effects, free mode, virtual slides, parallax and zoom.",
+  "keywords": [
+    "carousel",
+    "slider",
+    "image-slider",
+    "carousel-plugin",
+    "javascript-slider",
+    "vanilla-js",
+    "typescript",
+    "touch",
+    "responsive",
+    "coverflow",
+    "jquery-plugin",
+    "magento",
+    "shopify",
+    "mozert"
+  ],
+  "author": "Mozert Studio",
+  "license": "MIT",
+  "main": "dist/mozert.js",
+  "module": "dist/mozert.esm.mjs",
+  "unpkg": "dist/mozert.min.js",
+  "jsdelivr": "dist/mozert.min.js",
+  "style": "dist/mozert.min.css",
+  "types": "types/mozert.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/mozert.d.ts",
+      "import": "./dist/mozert.esm.mjs",
+      "require": "./dist/mozert.js"
+    },
+    "./core": "./dist/mozert.core.js",
+    "./jquery": "./dist/mozert.jquery.js",
+    "./css": "./dist/mozert.min.css",
+    "./theme.css": "./dist/mozert-theme.min.css",
+    "./dist/*": "./dist/*"
+  },
+  "files": [
+    "dist",
+    "types",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "directories": {
+    "doc": "site",
+    "test": "tests"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "start": "node scripts/dev.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node tests/run.cjs dist/mozert.min.js && node tests/extra.cjs dist/mozert.min.js && node tests/labels.cjs dist/mozert.min.js && node tests/modules.cjs dist/mozert.min.js && node tests/jquery.cjs && node tests/site.cjs",
+    "prepublishOnly": "npm run build",
+    "site": "node scripts/site.mjs"
+  },
+  "homepage": "https://mozert-slider.netlify.app/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozert-studio/mozert-slider.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mozert-studio/mozert-slider/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
