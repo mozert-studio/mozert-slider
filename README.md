@@ -1,0 +1,61 @@
+# Mozert Slider
+
+A dependency-free, touch-friendly, accessible carousel with 3D effects, free mode, virtual slides, parallax, zoom and every pagination style.
+
+- Core + all modules: ~18 KB gzip (core-only ~12 KB), no dependencies, jQuery optional
+- Effects: slide, fade, coverflow, cube, flip, cards, creative
+- Layout: infinite loop, responsive breakpoints, fractional slides per view, gaps, center mode, variable width, rows, vertical, RTL
+- Extras: free mode, mousewheel, scrollbar, parallax, zoom, virtual slides, hash navigation, marquee, video autoplay
+- Accessible by default, respects `prefers-reduced-motion`
+
+## Install
+
+```bash
+npm install @mozert-studio/mozert-slider
+```
+
+```js
+import Mozert from '@mozert-studio/mozert-slider';
+import '@mozert-studio/mozert-slider/css';
+import '@mozert-studio/mozert-slider/theme.css'; // optional arrows + dots styling
+
+new Mozert('.slider', { slidesToShow: 3, spaceBetween: 16, pagination: { type: 'dynamic' } });
+```
+
+Or with a script tag (after publishing to npm):
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mozert-studio/mozert-slider@1/dist/mozert.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@mozert-studio/mozert-slider@1/dist/mozert.min.js"></script>
+```
+
+## Files in `dist/`
+
+| File | Purpose |
+| --- | --- |
+| `mozert.min.js` / `mozert.js` | Core + all modules (UMD) |
+| `mozert.core.min.js` | Core only, no effect modules |
+| `mozert.esm.mjs` | ES module |
+| `mozert.jquery.min.js` | `$.fn.mozert` |
+| `mozert.min.css`, `mozert-theme.min.css` | Layout and optional theme |
+
+## Develop
+
+```bash
+npm run build   # dist/
+npm run site    # website into site/
+npm run dev     # build + serve the website with live reload (http://localhost:5173)
+npm test        # needs Playwright (Chromium) and a jQuery file, see tests/
+```
+
+`site/` is a static website (Home, Features, Examples, Docs, Installation, API, Blog, Changelog) that you can host anywhere.
+
+## Publishing checklist
+
+1. Enable 2FA on your npm account.
+2. `npm view @mozert-studio/mozert-slider` should return 404 (name free), then `npm publish --access public`.
+3. Create the npm organisation `mozert-studio` (npmjs.com/org/create, free for public packages) and the GitHub repo `mozert-studio/mozert-slider` (or edit `repository` in `package.json`).
+
+## License
+
+MIT, Mozert Studio
