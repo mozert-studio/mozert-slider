@@ -14,7 +14,7 @@ jobs:
       - run: npm install --no-save playwright esbuild react react-dom jquery
       - run: npx playwright install --with-deps ${{ matrix.browser }}
       - run: npm run build && npm run site
-      - run: npm test
+      - run: npm run test:all
         env:
           BROWSER: ${{ matrix.browser }}
           NODE_PATH: ${{ github.workspace }}/node_modules

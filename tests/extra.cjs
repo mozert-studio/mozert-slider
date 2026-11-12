@@ -101,11 +101,22 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   await run('touch swipe', async () => {
     await page.evaluate(() => mk({ speed: 100 }, 5, 'c9'));
     const box = await (await page.$('#c9 .mozert-list')).boundingBox();
-    const cdp = await ctx.newCDPSession(page);
-    const pt = (x) => [{ x: box.x + x, y: box.y + 40 }];
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: pt(450) });
-    for (let x = 440; x >= 150; x -= 40) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: pt(x) });
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    if (process.env.BROWSER && process.env.BROWSER !== 'chromium' || process.env.SYNTH_TOUCH) {
+      // Firefox and WebKit have no CDP: send the same gesture as touch pointer events.
+      await page.evaluate(({ x, y }) => {
+        const list = document.querySelector('#c9 .mozert-list');
+        const ev = (type, cx, t) => (t || list).dispatchEvent(new PointerEvent(type, { pointerId: 7, pointerType: 'touch', isPrimary: true, bubbles: true, cancelable: true, clientX: cx, clientY: y, buttons: type === 'pointerup' ? 0 : 1 }));
+        ev('pointerdown', x + 450);
+        for (let d = 440; d >= 150; d -= 40) ev('pointermove', x + d, window);
+        ev('pointerup', x + 150, window);
+      }, { x: box.x, y: box.y + 40 });
+    } else {
+      const cdp = await ctx.newCDPSession(page);
+      const pt = (x) => [{ x: box.x + x, y: box.y + 40 }];
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: pt(450) });
+      for (let x = 440; x >= 150; x -= 40) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: pt(x) });
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    }
     await wait(350);
     const cur = await page.evaluate(() => Mozert.get('#c9').currentSlide());
     ok(cur === 1, 'touch swipe next', cur);
