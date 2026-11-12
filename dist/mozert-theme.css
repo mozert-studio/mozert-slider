@@ -59,6 +59,28 @@
 .mozert-next::before {
   transform: translateX(-2px) rotate(45deg);
 }
+/* Phones: smaller arrows, closer to the edge, so they do not cover the slide */
+@media (max-width: 640px) {
+  .mozert-prev,
+  .mozert-next {
+    width: var(--mozert-arrow-size-sm, 34px);
+    height: var(--mozert-arrow-size-sm, 34px);
+    margin-top: calc(var(--mozert-arrow-size-sm, 34px) / -2);
+  }
+  .mozert-prev {
+    left: 8px;
+  }
+  .mozert-next {
+    right: 8px;
+  }
+  .mozert-prev::before,
+  .mozert-next::before {
+    margin: -4px 0 0 -4px;
+    width: 8px;
+    height: 8px;
+    border-width: 2px;
+  }
+}
 .mozert-rtl .mozert-prev {
   left: auto;
   right: 12px;

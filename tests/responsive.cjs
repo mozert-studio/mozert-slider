@@ -1,6 +1,6 @@
 // Examples page: every demo must work at phone, tablet and desktop widths.
 const http = require('http'), fs = require('fs'), path = require('path');
-const { chromium } = require('playwright');
+const chromium = require('playwright')[process.env.BROWSER || 'chromium'];
 const root = path.join(__dirname, '..', 'site');
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon' };
 const srv = http.createServer((q, s) => {
@@ -38,6 +38,8 @@ const ok = (c, m, d) => { if (c) pass++; else { fail++; console.log('FAIL', m, d
     ok(res.out.length >= 30, w + ': all demos on the page', res.out.length);
     ok(res.out.every((d) => d.init), w + ': every demo initialised', res.out.filter((d) => !d.init).map((d) => d.id));
     ok(res.out.every((d) => d.inside), w + ': every demo inside the screen', res.out.filter((d) => !d.inside).map((d) => d.id));
+    const arrows = await p.evaluate(() => [...document.querySelectorAll('#d-basic .mozert-prev, #d-basic .mozert-next, #d-multi .mozert-prev')].filter((a) => a.offsetParent).map((a) => Math.round(a.getBoundingClientRect().width)));
+    ok(arrows.length > 0 && arrows.every((a) => (w <= 640 ? a <= 36 : a >= 40)), w + ': arrow size follows the screen (small on phones)', arrows);
     ok(res.overflowX === 0, w + ': page does not scroll sideways', res.overflowX);
     ok(errs.length === 0, w + ': no JS errors', errs);
     const g = (id) => res.out.find((d) => d.id === id);
