@@ -476,7 +476,7 @@ ${posts.map(([id, t, sub, body]) => `<article class="post" id="${id}"><h2>${esc(
 // CHANGELOG
 add('changelog', 'Changelog | Mozert Slider', 'Version history of Mozert Slider.', `
 <h1>Changelog</h1><p class="lead">Mozert follows semantic versioning.</p>
-<section class="rel"><h3>${V} <span class="pill">latest</span></h3><p class="meta">2026-11-10</p><ul>
+<section class="rel"><h3>${V} <span class="pill">latest</span></h3><p class="meta">2026-11-12</p><ul>
 <li>Docs and examples for <code>prevArrow</code> / <code>nextArrow</code>, <code>appendArrows</code> / <code>appendDots</code>, <code>centerPadding</code> and <code>rtl</code>.</li>
 <li>Scroll-driven slider: <code>fill: true</code> makes the pinned slider as tall as the screen, plus <code>speed</code>, <code>offset</code> and <code>bottom</code> options.</li>
 <li>Fixed: dots moved out of the slider with <code>appendDots</code> now keep their theme styling.</li>
