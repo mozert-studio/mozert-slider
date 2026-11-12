@@ -1,5 +1,5 @@
 // Before JS runs, every demo slider must already be one horizontal row (no stacked giant blocks).
-const { chromium } = require('playwright');
+const chromium = require('playwright')[process.env.BROWSER || 'chromium'];
 const http = require('http'), fs = require('fs'), path = require('path');
 const root = path.join(__dirname, '..', 'site');
 const mime = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png' };

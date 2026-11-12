@@ -1,0 +1,20 @@
+name: test
+on: [push, pull_request]
+jobs:
+  browsers:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm install --no-save playwright esbuild react react-dom jquery
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: npm run build && npm run site
+      - run: npm test
+        env:
+          BROWSER: ${{ matrix.browser }}
+          NODE_PATH: ${{ github.workspace }}/node_modules

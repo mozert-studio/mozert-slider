@@ -1,6 +1,6 @@
 // Tests the React package in a real browser (React is bundled with esbuild) and the Vue package against a stub.
 // Needs react, react-dom and esbuild resolvable (NODE_PATH). Skips the React part otherwise.
-const { chromium } = require('playwright');
+const chromium = require('playwright')[process.env.BROWSER || 'chromium'];
 const path = require('path');
 const fs = require('fs');
 const Module = require('module');

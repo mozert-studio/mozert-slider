@@ -1,6 +1,6 @@
 // Site demo audit: every demo on the Examples page keeps a clean DOM and sane geometry,
 // including after add/remove/filter interactions, at desktop and phone widths.
-const { chromium } = require('playwright');
+const chromium = require('playwright')[process.env.BROWSER || 'chromium'];
 const path = require('path');
 const url = 'file://' + path.resolve(__dirname, '../site/examples/index.html');
 let pass = 0, fail = 0;

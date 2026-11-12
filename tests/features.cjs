@@ -1,5 +1,5 @@
 // Tests for thumbs, lightbox and scrollDriven. Usage: node tests/features.cjs [dist/mozert.js]
-const { chromium } = require('playwright');
+const chromium = require('playwright')[process.env.BROWSER || 'chromium'];
 const path = require('path');
 const root = path.join(__dirname, '..');
 const target = process.argv[2] || 'dist/mozert.js';

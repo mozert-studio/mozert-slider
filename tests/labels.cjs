@@ -1,5 +1,5 @@
 // Tests for the labels option and data-lazy-bg. Usage: node tests/labels.cjs [dist/mozert.js]
-const { chromium } = require('playwright');
+const chromium = require('playwright')[process.env.BROWSER || 'chromium'];
 const path = require('path');
 const root = path.join(__dirname, '..');
 const target = process.argv[2] || 'dist/mozert.js';

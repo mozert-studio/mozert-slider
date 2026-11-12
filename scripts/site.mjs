@@ -2,7 +2,7 @@
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { gzipSync } from 'node:zlib';
+
 import { createRequire } from 'node:module';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -14,8 +14,8 @@ const PKG = pkg.name;
 const OUT = join(root, 'site');
 const SITE_URL = (process.env.SITE_URL || 'https://mozert-slider.netlify.app').replace(/\/$/, '');
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const kb = (f) => { const b = readFileSync(join(root, 'dist', f)); return { raw: (b.length / 1024).toFixed(1), gz: (gzipSync(b).length / 1024).toFixed(1) }; };
-const SZ = { full: kb('mozert.min.js'), core: kb('mozert.core.min.js'), css: kb('mozert.min.css'), jq: kb('mozert.jquery.min.js') };
+import { sizes, SUPPORT } from './facts.mjs';
+const SZ = sizes();
 const CDN = `https://cdn.jsdelivr.net/npm/${PKG}@${V.split('.')[0]}/dist`;
 
 const code = (s, lang = '') => `<pre data-copy><code>${esc(s.replace(/^\n/, '').replace(/\s+$/, ''))}</code></pre>`;
@@ -174,7 +174,8 @@ ${[
   ['Accessibility', ['ARIA roles and labels, translatable via <code>labels</code>', 'Roving tabindex and keyboard arrows', 'Live region toggles with autoplay', '<code>prefers-reduced-motion</code> respected', 'Visible focus styles']],
   ['Integration', ['jQuery adapter and DOM events (<code>mozert:afterChange</code>)', 'ESM, CJS, UMD and TypeScript types', '<code>data-mozert</code> JSON config with auto-init', 'Module API: <code>Mozert.use()</code> for your own effects and features']],
 ].map(([t, items]) => `<section><h2>${t}</h2><ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul></section>`).join('')}
-<h2>Sizes</h2>${table(['File', 'Minified', 'Gzip'], [['<code>mozert.min.js</code> (core + all modules)', SZ.full.raw + ' KB', SZ.full.gz + ' KB'], ['<code>mozert.core.min.js</code> (core only)', SZ.core.raw + ' KB', SZ.core.gz + ' KB'], ['<code>mozert.min.css</code>', SZ.css.raw + ' KB', SZ.css.gz + ' KB']])}
+<h2>Sizes</h2>${table(['File', 'Minified', 'Gzip', 'Brotli'], [['<code>mozert.min.js</code> (core + every effect and module)', SZ.full.raw + ' KB', SZ.full.gz + ' KB', SZ.full.br + ' KB'], ['<code>mozert.core.min.js</code> (core only, no effect modules)', SZ.core.raw + ' KB', SZ.core.gz + ' KB', SZ.core.br + ' KB'], ['<code>mozert.min.css</code> (layout)', SZ.css.raw + ' KB', SZ.css.gz + ' KB', SZ.css.br + ' KB'], ['<code>mozert-theme.min.css</code> (optional theme)', SZ.theme.raw + ' KB', SZ.theme.gz + ' KB', SZ.theme.br + ' KB']])}<p>Measured on the files in <code>dist/</code> for v${V} (gzip via Node zlib level 9, Brotli quality 11; the <code>gzip</code> command line tool reports about 1% less). Use the core-only file when you need just the slider; the full file adds the 3D effects, free mode, virtual slides, parallax, zoom, lightbox, thumbs, magnifier and scroll-driven mode.</p>
+<h2 id="browser-support">Browser support</h2>${table(['Browser', 'Minimum version', 'How it is checked'], SUPPORT)}
 `);
 
 // EXAMPLES
