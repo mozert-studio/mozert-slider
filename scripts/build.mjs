@@ -1,12 +1,14 @@
 // Build script - zero dependencies.
 // Produces dist/: UMD + ESM builds, minified JS and CSS.
 // (If you prefer terser / lightningcss, swap `minJS` / `minCSS` below.)
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = (f) => readFileSync(join(root, 'src', f), 'utf8');
+// start from an empty dist/ so old files from earlier builds are never published
+rmSync(join(root, 'dist'), { recursive: true, force: true });
 const out = (f, s) => { mkdirSync(join(root, 'dist'), { recursive: true }); writeFileSync(join(root, 'dist', f), s); };
 
 const idc = (c) => /[A-Za-z0-9_$]/.test(c);

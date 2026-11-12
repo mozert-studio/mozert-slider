@@ -191,3 +191,10 @@ html.mozert-lb-open{overflow:hidden}
 /* scrollDriven fill: the pinned slider is as tall as the screen */
 .mozert-sd-fill .mozert-list,.mozert-sd-fill .mozert-track,.mozert-sd-fill .mozert-slide{height:100%}
 .mozert-sd-fill .mozert-slide>*{height:100%}
+
+/* Before JS runs: lay slides out as one horizontal row so the page does not jump. Add class="mozert-pre" to the markup; init removes it.
+   Optional custom properties: --mozert-pre-w (slide width, default 100%), --mozert-pre-gap, --mozert-pre-pad (side padding for centerMode),
+   --mozert-pre-h (min-height); each has an -sm twin that applies on screens up to 640px. */
+.mozert-pre{display:flex;overflow:hidden;gap:var(--mozert-pre-gap,0);padding-inline:var(--mozert-pre-pad,0);min-height:var(--mozert-pre-h,0)}
+.mozert-pre>*{flex:0 0 var(--mozert-pre-w,100%);min-width:0}
+@media(max-width:640px){.mozert-pre{padding-inline:var(--mozert-pre-pad-sm,var(--mozert-pre-pad,0));min-height:var(--mozert-pre-h-sm,var(--mozert-pre-h,0))}.mozert-pre>*{flex-basis:var(--mozert-pre-w-sm,var(--mozert-pre-w,100%))}}
