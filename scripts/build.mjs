@@ -109,3 +109,7 @@ console.log('built dist/: mozert.min.js', kb(minJS(core)), '| css', kb(minCSS(sr
 
 // Node-friendly ES module entry (.mjs avoids the "module type not specified" warning).
 out('mozert.esm.mjs', readFileSync(join(root, 'dist', 'mozert.esm.js'), 'utf8'));
+
+// keep README sizes / version / browser table in step with the files just built
+const { updateReadme } = await import('./readme.mjs');
+updateReadme();

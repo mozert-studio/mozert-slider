@@ -1,5 +1,5 @@
 // jQuery adapter test. Needs a jQuery file: node tests/jquery.cjs /path/to/jquery.min.js
-const { chromium } = require('playwright');
+const chromium = require('playwright')[process.env.BROWSER || 'chromium'];
 const path = require('path');
 const root = path.join(__dirname, '..');
 const jq = process.argv[2] || '/usr/share/javascript/jquery/jquery.min.js';

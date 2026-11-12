@@ -1,5 +1,5 @@
 // Behavioural test-suite. Usage: node tests/run.cjs [dist/mozert.js | dist/mozert.min.js]
-const { chromium } = require('playwright');
+const chromium = require('playwright')[process.env.BROWSER || 'chromium'];
 const path = require('path');
 const root = path.join(__dirname, '..');
 const target = process.argv[2] || 'dist/mozert.js';

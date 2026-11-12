@@ -1,5 +1,5 @@
 // Module tests (effects, free mode, pagination, ...). Usage: node tests/extra.cjs [dist/mozert.js]
-const { chromium } = require('playwright');
+const chromium = require('playwright')[process.env.BROWSER || 'chromium'];
 const path = require('path');
 const root = path.join(__dirname, '..');
 const target = process.argv[2] || 'dist/mozert.js';
@@ -74,9 +74,14 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     await page.mouse.move(box.x + 400, box.y + 40); await page.mouse.down(); await page.mouse.move(box.x + 250, box.y + 40, { steps: 5 }); await page.mouse.move(box.x + 100, box.y + 40, { steps: 5 }); await page.mouse.up();
     await page.waitForTimeout(900);
     const t1 = await page.evaluate(() => Mozert.get(document.getElementById('fm'))._cur);
-    await page.mouse.move(box.x + 300, box.y + 40); await page.mouse.wheel(0, 120); await page.waitForTimeout(300);
-    const t2 = await page.evaluate(() => Mozert.get(document.getElementById('fm'))._cur);
-    ok(t1 < -150 && t2 < t1, 'free+wheel', { t1, t2 });
+    // WebKit's drag momentum can carry the list to its far end, where the wheel has nowhere to go: test the wheel on a fresh slider.
+    await page.evaluate(() => mk({ freeMode: true, slidesToShow: 2.5, spaceBetween: 10, mousewheel: true, infinite: false }, 10, 'fw', 600));
+    await page.waitForTimeout(150);
+    const wb = await page.locator('#fw').boundingBox();
+    await page.mouse.move(wb.x + 300, wb.y + 40); await page.mouse.wheel(0, 120); await page.waitForTimeout(400);
+    const t2 = await page.evaluate(() => Mozert.get(document.getElementById('fw'))._cur);
+    ok(t1 < -150, 'free drag', { t1 });
+    ok(t2 < -20, 'free+wheel', { t2 });
   });
   await run('virtual slides', async () => {
     const r = await page.evaluate(async () => {

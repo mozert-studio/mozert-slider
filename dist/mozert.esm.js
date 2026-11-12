@@ -370,6 +370,8 @@ class Mozert {
     this._life.forEach((fn) => fn());
     this._life = [];
     if (this._ro) this._ro.disconnect();
+    if (this._roRaf) cancelAnimationFrame(this._roRaf);
+    this._roRaf = 0;
     registry.delete(this.el);
     this._dormant = false;
     this._handlers = {};
@@ -530,12 +532,18 @@ class Mozert {
       document.removeEventListener('visibilitychange', onVis);
     });
     if (typeof ResizeObserver !== 'undefined') {
+      // Handle the change in the next frame, not inside the observer callback: layout work in there
+      // makes Safari report "ResizeObserver loop completed with undelivered notifications".
       this._ro = new ResizeObserver(() => {
-        const w = this.el.clientWidth;
-        if (w !== this._lastW) {
-          this._lastW = w;
-          onResize();
-        }
+        if (this._roRaf) return;
+        this._roRaf = requestAnimationFrame(() => {
+          this._roRaf = 0;
+          const w = this.el.clientWidth;
+          if (w !== this._lastW) {
+            this._lastW = w;
+            onResize();
+          }
+        });
       });
       this._ro.observe(this.el);
     }
@@ -2723,17 +2731,23 @@ Mozert._bridge = null;
         th.refresh();
       };
       const th = new Mozert(host, Object.assign({ slidesToShow: count, slidesToScroll: 1, arrows: false, dots: false, infinite: false, swipeToSlide: true, spaceBetween: gap, focusOnSelect: true, initialSlide: 0, vertical: side }, o.options, { asNavFor: sl, thumbs: false, lightbox: false }));
-      let ro = null;
+      let ro = null, roStop = null;
       if (side) {
         fit();
         if (typeof ResizeObserver !== 'undefined') {
           let lastH = sl.el.offsetHeight;
+          let raf = 0;
           ro = new ResizeObserver(() => {
-            if (sl.el.offsetHeight !== lastH) {
-              lastH = sl.el.offsetHeight;
-              fit();
-            }
+            if (raf) return;
+            raf = requestAnimationFrame(() => {
+              raf = 0;
+              if (sl.el.offsetHeight !== lastH) {
+                lastH = sl.el.offsetHeight;
+                fit();
+              }
+            });
           });
+          roStop = () => { if (raf) cancelAnimationFrame(raf); raf = 0; };
           ro.observe(sl.el);
         }
       }
@@ -2745,6 +2759,7 @@ Mozert._bridge = null;
         destroy() {
           if (sl.s.asNavFor === th) sl.s.asNavFor = prevNav;
           if (ro) ro.disconnect();
+          if (roStop) roStop();
           if (mq) mq.removeEventListener ? mq.removeEventListener('change', onMq) : mq.removeListener(onMq);
           host.removeAttribute('data-mozert-thumbs');
           host.style.removeProperty('--mozert-thumb-h');
