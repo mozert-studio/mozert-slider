@@ -112,3 +112,22 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 @media(max-width:640px){.logo img{height:28px}.bar{gap:8px}.tt,.menu summary{width:36px;height:36px}}
 @media(max-width:380px){.logo img{height:24px}}
 nav.main{flex-wrap:nowrap;white-space:nowrap}
+
+/* 3D carousel (reuses the numbered demo panels) */
+.stage.tiles{background:radial-gradient(120% 90% at 50% 0%,var(--tint),var(--bg));border:1px solid var(--line);border-radius:14px;padding:8px 0 14px}
+.stage.tiles .sc{margin:72px 0 26px;aspect-ratio:1;box-shadow:0 18px 34px -14px rgba(15,22,38,.45)}
+.stage.tiles .sc-h{font-size:max(18px,26cqw)}
+/* expanding cards */
+.stage.xstage{background:var(--xbg,#ff6a3d);border-radius:14px;padding:34px 0;transition:background .6s ease;overflow:hidden}
+.stage.xstage .sc{aspect-ratio:auto;height:300px;box-shadow:0 18px 30px -14px rgba(0,0,0,.45)}
+
+.stage.sdstage{padding:0}
+.stage.sdstage .sc{aspect-ratio:auto;height:100%;min-height:200px}
+
+.cbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 12px;flex-wrap:wrap}
+.cbar-a{display:flex;gap:8px}
+.cbar-a .mozert-prev,.cbar-a .mozert-next{position:static;margin:0;width:auto;height:40px;padding:0 18px;border-radius:999px;background:var(--accent);color:var(--accent-ink);box-shadow:none;font:600 14px/1 var(--body);display:inline-flex;align-items:center}
+.cbar-a .mozert-prev::before,.cbar-a .mozert-next::before{display:none}
+.cbar-a .mozert-disabled{opacity:.35}
+.cbar-d .mozert-dots{position:static;margin:0;transform:none;display:flex}
+[dir=rtl] .stage .sc{direction:rtl;text-align:right}

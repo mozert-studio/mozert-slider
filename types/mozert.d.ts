@@ -11,8 +11,9 @@ export interface MozertOptions {
   disableOnInteraction?: boolean;
   autoplayReverse?: boolean;
   stopOnLastSlide?: boolean;
-  effect?: 'slide' | 'fade' | 'coverflow' | 'cube' | 'flip' | 'cards' | 'creative';
-  coverflowEffect?: { rotate?: number; depth?: number; scale?: number; stretch?: number; modifier?: number };
+  effect?: 'slide' | 'fade' | 'coverflow' | 'cube' | 'flip' | 'cards' | 'creative' | 'expand';
+  expandEffect?: { extra?: number };
+  coverflowEffect?: { rotate?: number; depth?: number; scale?: number; stretch?: number; modifier?: number; lift?: number; fade?: number };
   cubeEffect?: { perspective?: number };
   flipEffect?: { perspective?: number; limitRotation?: boolean };
   cardsEffect?: { perSlideOffset?: number; perSlideRotate?: number; rotate?: boolean; visible?: number };
@@ -29,6 +30,10 @@ export interface MozertOptions {
   marquee?: boolean | { speed?: number; pauseOnHover?: boolean; direction?: 'left' | 'right' };
   videoAutoplay?: boolean | { wait?: boolean; pauseOthers?: boolean; rewind?: boolean };
   fullscreen?: boolean;
+  thumbs?: boolean | string | Element | { el?: string | Element; count?: number; position?: 'bottom' | 'top' | 'left' | 'right'; breakpoint?: number; options?: MozertOptions };
+  lightbox?: boolean | { zoom?: boolean; loop?: boolean; maxZoom?: number };
+  magnifier?: boolean | { zoom?: number; button?: boolean; active?: boolean };
+  scrollDriven?: boolean | { step?: number; top?: number | 'center'; offset?: number; speed?: number; fill?: boolean; bottom?: number };
   bleed?: boolean | 'left' | 'right';
   accessibility: boolean;
   adaptiveHeight: boolean;
@@ -116,6 +121,12 @@ export interface MozertState {
 }
 
 export default class Mozert {
+  /** Present when the lightbox option is on. */
+  lightbox?: { open(index: number): void; close(): void; readonly isOpen: boolean };
+  /** Present when magnifier is on. */
+  magnifier?: { enable(): void; disable(): void; toggle(): void; isOn(): boolean };
+  /** Present when scrollDriven is on. */
+  scrollDriven?: { update(): void };
   static readonly version: string;
   static readonly defaults: MozertOptions;
   static get(el: string | Element): Mozert | null;

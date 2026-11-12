@@ -13,6 +13,11 @@
       }
       var inst = new Mozert(el, o);
       var box = document.getElementById(d.id + '-box');
+      if (d.kind === 'expand' && box) {
+        var xs = box.querySelector('.xstage');
+        var paintX = function () { var cur = inst.dom.filter(function (e) { return e.classList.contains('mozert-current'); })[0]; if (cur && xs) xs.style.setProperty('--xbg', cur.getAttribute('data-bg')); };
+        inst.on('afterChange', paintX); inst.on('init', paintX); paintX();
+      }
       if (d.kind === 'dynamic' && box) {
         var seq = 4, hue = function (k) { return 'sc-' + (k % 8); };
         var mk = function () { seq++; return '<div><div class="sc ' + hue(seq) + '"><i class="sc-s"></i><span class="sc-k">New</span><strong class="sc-h">' + String(seq).padStart(2, '0') + '</strong><span class="sc-p">Mozert Slider</span></div></div>'; };

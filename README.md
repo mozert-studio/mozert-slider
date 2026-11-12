@@ -29,6 +29,24 @@ Or with a script tag (after publishing to npm):
 <script src="https://cdn.jsdelivr.net/npm/@mozert-studio/mozert-slider@1/dist/mozert.min.js"></script>
 ```
 
+## React and Vue
+
+```
+npm install @mozert-studio/react @mozert-studio/mozert-slider   # or @mozert-studio/vue
+```
+
+```jsx
+import '@mozert-studio/mozert-slider/css';
+import '@mozert-studio/mozert-slider/theme.css';
+import MozertSlider from '@mozert-studio/react';
+
+<MozertSlider slidesToShow={3} spaceBetween={16} dots thumbs lightbox>
+  {products.map((p) => <div key={p.id}><img src={p.image} alt={p.name} /></div>)}
+</MozertSlider>
+```
+
+Guides for Next.js, Vue 3 and Nuxt: https://mozert-slider.netlify.app/blog/#react-vue-slider. The packages live in `packages/react` and `packages/vue`.
+
 ## Files in `dist/`
 
 | File | Purpose |

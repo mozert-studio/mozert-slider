@@ -1,10 +1,10 @@
 /*!
- * Mozert 1.1.0
+ * Mozert 1.1.1
  * A dependency-free, responsive, touch-friendly carousel / slider.
  * MIT License
  */
 const Mozert = (function () {
-const VERSION = '1.1.0';
+const VERSION = '1.1.1';
 
 const DEFAULTS = {
   accessibility: true,
@@ -70,7 +70,7 @@ const DEFAULTS = {
   on: null,
 };
 
-const LABELS = { slide: 'Slide {n} of {total}', prev: 'Previous slide', next: 'Next slide', goTo: 'Go to slide {n}' };
+const LABELS = { slide: 'Slide {n} of {total}', prev: 'Previous slide', next: 'Next slide', goTo: 'Go to slide {n}', fullscreen: 'Toggle fullscreen', close: 'Close', zoom: 'Zoom', lightbox: 'Image viewer', imageOf: 'Image {n} of {total}', magnifier: 'Magnifier' };
 const DEFAULT_PREV = '<button type="button" class="mozert-prev" aria-label="Previous slide">Previous</button>';
 const DEFAULT_NEXT = '<button type="button" class="mozert-next" aria-label="Next slide">Next</button>';
 const FOCUSABLE = 'a[href],button,input,select,textarea,[tabindex],[contenteditable="true"]';
@@ -463,7 +463,7 @@ class Mozert {
       s.slidesToShow = 1;
       s.slidesToScroll = 1;
     }
-    if (s.effect === 'coverflow') s.centerMode = true;
+    if (s.effect === 'coverflow' || s.effect === 'expand') s.centerMode = true;
     if (s.freeMode || s.virtual || s.bleed) s.infinite = false;
     if (s.marquee) {
       s.infinite = true;
@@ -1040,7 +1040,18 @@ class Mozert {
 
   _slideTo(target, opts = {}) {
     const s = this.s;
-    if (!this.active || !this.canNav) return false;
+    if (!this.active) return false;
+    if (!this.canNav) {
+      // A strip that shows every slide cannot move, but a synced partner can still change which slide is highlighted.
+      if (opts.fromSync) {
+        const sel = opts.sel !== undefined && opts.sel !== 0 ? opts.sel : null;
+        if (sel !== this._sel) {
+          this._sel = sel;
+          this._updateSlideClasses(this._logical);
+        }
+      }
+      return false;
+    }
     if (this.animating && !opts.fromSync && s.waitForAnimate) return false;
     let next = target;
     if (!s.infinite || s.stacked) next = s.stacked ? this._norm(next) : clamp(next, 0, this.maxIndex);
@@ -1049,9 +1060,19 @@ class Mozert {
     // (a thumbnail strip stops at its last full page, but the main slider should still go to the clicked one).
     const want = s.infinite || s.stacked ? real : clamp(target, 0, this.n - 1);
     if (next === this.current && !this.animating && !opts.force) {
-      if (!opts.fromSync && want !== next) {
-        this._sel = want;
-        this._updateSlideClasses(this._logical);
+      if (opts.fromSync) {
+        // Already at the clamped position: only move the highlight to the slide the partner asked for.
+        const sel = opts.sel !== undefined && opts.sel !== next ? opts.sel : null;
+        if (sel !== this._sel) {
+          this._sel = sel;
+          this._updateSlideClasses(this._logical);
+        }
+      } else {
+        // The strip already sits on this index (its last full page), but the partner may still be elsewhere.
+        if (want !== next) {
+          this._sel = want;
+          this._updateSlideClasses(this._logical);
+        }
         this._syncNav(want);
       }
       return false;
@@ -1313,11 +1334,19 @@ class Mozert {
           this._dragged = false;
           return;
         }
-        if (s.focusOnSelect && this.canNav) {
+        if (s.focusOnSelect && (this.canNav || s.asNavFor)) {
           const slide = e.target.closest ? e.target.closest('.mozert-slide') : null;
           if (slide && this.track.contains(slide)) {
             const i = parseInt(slide.getAttribute('data-mozert-index'), 10);
-            if (!isNaN(i)) this.goTo(i);
+            if (!isNaN(i)) {
+              if (this.canNav) this.goTo(i);
+              else {
+                // Nothing to scroll: just highlight the clicked slide and tell the partner.
+                this._sel = i;
+                this._updateSlideClasses(this._logical);
+                this._syncNav(i);
+              }
+            }
           }
         }
       },
@@ -1558,11 +1587,11 @@ class Mozert {
     const v = this.s.asNavFor;
     if (!v) return [];
     let els = [];
-    if (v instanceof Mozert) return [v];
+    if (v instanceof Mozert) return v.active && v !== this ? [v] : [];
     if (typeof v === 'string') els = Array.from(document.querySelectorAll(v));
     else if (isEl(v)) els = [v];
     else if (v.length) els = Array.from(v);
-    return els.map((e) => registry.get(e)).filter((i) => i && i !== this && i.active && i.canNav);
+    return els.map((e) => registry.get(e)).filter((i) => i && i !== this && i.active);
   }
 
   _syncNav(index) {
@@ -1739,11 +1768,12 @@ Mozert._bridge = null;
   const pct = (v, size) => (typeof v === 'string' && v.indexOf('%') > -1 ? (parseFloat(v) / 100) * size : parseFloat(v) || 0);
 
   /* ------------------------------------------------------------ effects */
-  const FX = ['coverflow', 'cube', 'flip', 'cards', 'creative'];
+  const FX = ['coverflow', 'cube', 'flip', 'cards', 'creative', 'expand'];
   Mozert.use({
     name: 'effects',
     defaults: {
-      coverflowEffect: { rotate: 45, depth: 120, scale: 1, stretch: 0, modifier: 1, shadow: true },
+      coverflowEffect: { rotate: 45, depth: 120, scale: 1, stretch: 0, modifier: 1, lift: 0, fade: 0, shadow: true },
+      expandEffect: { extra: 1.4 },
       cubeEffect: { shadow: true, slideShadows: true, perspective: 1200 },
       flipEffect: { perspective: 1400, limitRotation: true },
       cardsEffect: { perSlideOffset: 10, perSlideRotate: 2, rotate: true, visible: 4 },
@@ -1794,8 +1824,22 @@ Mozert._bridge = null;
             const rot = clampN(-r, -3, 3) * o.rotate * o.modifier;
             const tz = -a * o.depth;
             const sc = 1 - Math.min(a, 3) * (1 - o.scale) * 0.5;
-            tr = 'translate3d(' + -r * o.stretch + 'px,0,' + tz + 'px) rotateY(' + rot + 'deg) scale(' + sc + ')';
-            op = a > 4 ? 0 : 1;
+            tr = 'translate3d(' + -r * o.stretch + 'px,' + -Math.min(a, 3) * o.lift + 'px,' + tz + 'px) rotateY(' + rot + 'deg) scale(' + sc + ')';
+            op = a > 4 ? 0 : Math.max(0, 1 - Math.min(a, 4) * o.fade);
+          } else if (fx === 'expand') {
+            // The active card grows wider, its neighbours slide out of the way.
+            // Both follow the same linear rule, so dragging stays continuous.
+            const m = Math.min(1, a);
+            const w0 = e.offsetWidth;
+            const grow = o.extra * w0 * (1 - m);
+            tr = 'translate3d(' + (r < 0 ? -1 : 1) * ((o.extra * w0) / 2) * m + 'px,0,0)';
+            const card = e.firstElementChild;
+            if (card) {
+              card.style.transition = animate && !jump ? 'width ' + speed + 'ms ' + s.cssEase + ', margin-left ' + speed + 'ms ' + s.cssEase : 'none';
+              card.style.width = w0 + grow + 'px';
+              card.style.marginLeft = -grow / 2 + 'px';
+              card.style.maxWidth = 'none';
+            }
           } else if (fx === 'cube') {
             tr = 'translate3d(0,0,' + -W / 2 + 'px) rotateY(' + r * 90 + 'deg) translate3d(0,0,' + W / 2 + 'px)';
             op = a <= 1.01 ? 1 : 0;
@@ -1842,6 +1886,7 @@ Mozert._bridge = null;
           list.style.overflow = '';
           sl.el.classList.remove('mozert-fx-' + fx);
           slides().forEach((e) => {
+            if (fx === 'expand' && e.firstElementChild) e.firstElementChild.style.width = e.firstElementChild.style.marginLeft = e.firstElementChild.style.transition = e.firstElementChild.style.maxWidth = '';
             e.style.transform = e.style.opacity = e.style.zIndex = e.style.transition = e.style.pointerEvents = e.style.backfaceVisibility = '';
           });
         },
@@ -2602,6 +2647,515 @@ Mozert._bridge = null;
           list.style.clipPath = '';
           if (clipped) body.style.overflowX = prevClip;
           sl.el.classList.remove('mozert-bleed');
+        },
+      };
+    },
+  });
+
+  /* ------------------------------------------------------------- thumbs */
+  // thumbs: '#nav' (an existing strip), true (create one below the slider) or { el, options, count }.
+  // An empty strip is filled automatically from each slide's data-thumb, first <img> or background.
+  Mozert.use({
+    name: 'thumbs',
+    defaults: { thumbs: false },
+    create(sl) {
+      const cfg = sl.s.thumbs;
+      if (!cfg || sl.n < 2) return null;
+      const o = objOpt(cfg, { el: null, options: {}, count: 5, position: 'bottom', breakpoint: 640 });
+      const want = ['left', 'right', 'top', 'bottom'].indexOf(o.position) > -1 ? o.position : 'bottom';
+      // A side strip moves below the picture on narrow screens (viewport <= breakpoint px).
+      const mq = (want === 'left' || want === 'right') && o.breakpoint > 0 && typeof matchMedia === 'function' ? matchMedia('(max-width:' + o.breakpoint + 'px)') : null;
+      const pos = mq && mq.matches ? 'bottom' : want;
+      const side = pos === 'left' || pos === 'right';
+      const onMq = () => sl.active && sl.refresh();
+      if (mq) mq.addEventListener ? mq.addEventListener('change', onMq) : mq.addListener(onMq);
+      let host = null;
+      let made = false;
+      let wrap = null;
+      const ref = cfg === true ? null : typeof cfg === 'object' && !cfg.nodeType ? o.el : cfg;
+      if (ref) host = typeof ref === 'string' ? document.querySelector(ref) : ref && ref.nodeType ? ref : null;
+      if (!host) {
+        if (ref) return null;
+        host = mk('div', 'mozert-thumbs');
+        made = true;
+        if (side) {
+          wrap = mk('div', 'mozert-gallery mozert-gallery-' + pos);
+          sl.el.parentNode.insertBefore(wrap, sl.el);
+          wrap.appendChild(sl.el);
+          wrap.appendChild(host);
+        } else if (pos === 'top') sl.el.parentNode.insertBefore(host, sl.el);
+        else sl.el.parentNode.insertBefore(host, sl.el.nextSibling);
+      }
+      host.setAttribute('data-mozert-thumbs', pos);
+      const auto = host.children.length === 0;
+      if (auto) {
+        (sl._items || []).forEach((src, i) => {
+          const cell = mk('div');
+          const first = src.firstElementChild;
+          const img = src.querySelector('img');
+          const url = src.getAttribute('data-thumb') || (img && (img.getAttribute('data-thumb') || img.getAttribute('src') || img.getAttribute('data-lazy')));
+          if (url) {
+            const t = mk('img', 'mozert-thumb');
+            t.src = url;
+            t.alt = '';
+            t.draggable = false;
+            cell.appendChild(t);
+          } else {
+            const t = mk('div', 'mozert-thumb mozert-thumb-fill');
+            const bg = first ? getComputedStyle(first).backgroundImage : 'none';
+            if (bg && bg !== 'none') t.style.backgroundImage = bg;
+            else t.style.background = (first && getComputedStyle(first).backgroundColor) || '#ccd';
+            t.textContent = String(i + 1);
+            cell.appendChild(t);
+          }
+          host.appendChild(cell);
+        });
+      }
+      const count = Math.max(1, Math.min(o.count, sl.n));
+      const gap = o.options && o.options.spaceBetween != null ? o.options.spaceBetween : 10;
+      const fit = () => {
+        // vertical strip: size each thumb so `count` of them fill exactly the height of the main slider
+        const H = sl.el.offsetHeight;
+        if (!H) return;
+        host.style.setProperty('--mozert-thumb-h', Math.max(24, (H - gap * (count - 1)) / count) + 'px');
+        host.style.height = H + 'px';
+        th.refresh();
+      };
+      const th = new Mozert(host, Object.assign({ slidesToShow: count, slidesToScroll: 1, arrows: false, dots: false, infinite: false, swipeToSlide: true, spaceBetween: gap, focusOnSelect: true, initialSlide: 0, vertical: side }, o.options, { asNavFor: sl, thumbs: false, lightbox: false }));
+      let ro = null;
+      if (side) {
+        fit();
+        if (typeof ResizeObserver !== 'undefined') {
+          let lastH = sl.el.offsetHeight;
+          ro = new ResizeObserver(() => {
+            if (sl.el.offsetHeight !== lastH) {
+              lastH = sl.el.offsetHeight;
+              fit();
+            }
+          });
+          ro.observe(sl.el);
+        }
+      }
+      const prevNav = sl.s.asNavFor;
+      if (!prevNav) sl.s.asNavFor = th;
+      host.classList.add('mozert-thumbs');
+      sl._syncNav(sl.current);
+      return {
+        destroy() {
+          if (sl.s.asNavFor === th) sl.s.asNavFor = prevNav;
+          if (ro) ro.disconnect();
+          if (mq) mq.removeEventListener ? mq.removeEventListener('change', onMq) : mq.removeListener(onMq);
+          host.removeAttribute('data-mozert-thumbs');
+          host.style.removeProperty('--mozert-thumb-h');
+          if (side) host.style.height = '';
+          th.destroy();
+          if (wrap && wrap.parentNode) {
+            wrap.parentNode.insertBefore(sl.el, wrap);
+            wrap.parentNode.removeChild(wrap);
+          } else if (made) host.parentNode && host.parentNode.removeChild(host);
+          else if (auto) host.innerHTML = '';
+        },
+      };
+    },
+  });
+
+  /* ----------------------------------------------------------- lightbox */
+  // lightbox: true | { zoom: true, loop: true }. Click a slide to open it full screen.
+  Mozert.use({
+    name: 'lightbox',
+    defaults: { lightbox: false },
+    create(sl) {
+      if (!sl.s.lightbox) return null;
+      const o = objOpt(sl.s.lightbox, { zoom: true, loop: true, maxZoom: 2.5 });
+      let box = null;
+      let idx = 0;
+      let opener = null;
+      let zoomed = false;
+      let zrect = null;
+      let drag = null;
+      const items = () => sl._items || [];
+      const isImg = (h) => /^data:image\//i.test(h || '') || /\.(jpe?g|png|gif|webp|avif|svg)(\?|#|$)/i.test(h || '');
+      const info = (src) => {
+        const img = src.querySelector('img');
+        const a = src.querySelector('a[href]');
+        const full = src.getAttribute('data-full') || (img && img.getAttribute('data-full')) || (a && isImg(a.getAttribute('href')) ? a.getAttribute('href') : '') || (img && (img.currentSrc || img.getAttribute('src'))) || '';
+        return { src: full, alt: (img && img.getAttribute('alt')) || '', cap: src.getAttribute('data-caption') || (img && img.getAttribute('data-caption')) || '', node: src };
+      };
+      const stageContent = (it) => {
+        if (it.src) {
+          const im = mk('img', 'mozert-lb-img');
+          im.src = it.src;
+          im.alt = it.alt;
+          im.draggable = false;
+          return im;
+        }
+        // Slides without an image: show a larger copy of the slide itself.
+        const w = mk('div', 'mozert-lb-clone');
+        w.innerHTML = it.node.innerHTML;
+        return w;
+      };
+      const setZoom = (on, ev) => {
+        const el = box && box.querySelector('.mozert-lb-img,.mozert-lb-clone');
+        if (!el || !o.zoom) return;
+        zoomed = on;
+        box.classList.toggle('mozert-lb-zoomed', on);
+        if (on) {
+          const r = el.getBoundingClientRect();
+          zrect = r;
+          const ox = ev ? ((ev.clientX - r.left) / r.width) * 100 : 50;
+          const oy = ev ? ((ev.clientY - r.top) / r.height) * 100 : 50;
+          el.style.transformOrigin = ox + '% ' + oy + '%';
+          el.style.transform = 'scale(' + o.maxZoom + ')';
+        } else {
+          el.style.transform = '';
+        }
+      };
+      const show = (i, dir) => {
+        const list = items();
+        if (!list.length) return;
+        if (o.loop) i = (i + list.length) % list.length;
+        else i = clampN(i, 0, list.length - 1);
+        idx = i;
+        setZoom(false);
+        const it = info(list[i]);
+        const stage = box.querySelector('.mozert-lb-stage');
+        stage.innerHTML = '';
+        const c = stageContent(it);
+        stage.appendChild(c);
+        c.classList.add('mozert-lb-in');
+        if (dir) c.style.setProperty('--lb-from', dir > 0 ? '40px' : '-40px');
+        box.querySelector('.mozert-lb-count').textContent = i + 1 + ' / ' + list.length;
+        box.querySelector('.mozert-lb-cap').textContent = it.cap;
+        box.setAttribute('aria-label', sl._label('imageOf', { n: i + 1, total: list.length }));
+        const edge = !o.loop && list.length > 1;
+        box.querySelector('.mozert-lb-prev').disabled = edge && i === 0;
+        box.querySelector('.mozert-lb-next').disabled = edge && i === list.length - 1;
+        // Preload the neighbours.
+        [i - 1, i + 1].forEach((k) => {
+          const n = list[(k + list.length) % list.length];
+          const u = n && info(n).src;
+          if (u) new Image().src = u;
+        });
+        if (sl.emit) sl.emit('lightboxChange', i);
+      };
+      const key = (e) => {
+        if (!box) return;
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          close();
+        } else if (e.key === 'ArrowRight') show(idx + 1, 1);
+        else if (e.key === 'ArrowLeft') show(idx - 1, -1);
+        else if (e.key === 'Tab') {
+          const f = Array.from(box.querySelectorAll('button:not([disabled])'));
+          if (!f.length) return;
+          const first = f[0];
+          const last = f[f.length - 1];
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      };
+      const open = (i) => {
+        if (box || !items().length) return;
+        opener = document.activeElement;
+        const lb = (k) => sl._label(k);
+        const single = items().length < 2;
+        box = mk('div', 'mozert-lb');
+        box.setAttribute('role', 'dialog');
+        box.setAttribute('aria-modal', 'true');
+        box.innerHTML =
+          '<div class="mozert-lb-stage"></div>' +
+          '<div class="mozert-lb-bar"><span class="mozert-lb-count"></span>' +
+          (o.zoom ? '<button type="button" class="mozert-lb-zoom" aria-label="' + lb('zoom') + '"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg></button>' : '') +
+          '<button type="button" class="mozert-lb-close" aria-label="' + lb('close') + '"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button></div>' +
+          (single ? '' : '<button type="button" class="mozert-lb-prev" aria-label="' + lb('prev') + '"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="mozert-lb-next" aria-label="' + lb('next') + '"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>') +
+          '<div class="mozert-lb-cap"></div>';
+        if (single) {
+          box.insertAdjacentHTML('beforeend', '<button type="button" class="mozert-lb-prev" hidden></button><button type="button" class="mozert-lb-next" hidden></button>');
+        }
+        document.body.appendChild(box);
+        document.documentElement.classList.add('mozert-lb-open');
+        show(i);
+        requestAnimationFrame(() => box && box.classList.add('mozert-lb-show'));
+        const stage = box.querySelector('.mozert-lb-stage');
+        box.querySelector('.mozert-lb-close').addEventListener('click', close);
+        const pv = box.querySelector('.mozert-lb-prev');
+        const nx = box.querySelector('.mozert-lb-next');
+        pv.addEventListener('click', () => show(idx - 1, -1));
+        nx.addEventListener('click', () => show(idx + 1, 1));
+        const zb = box.querySelector('.mozert-lb-zoom');
+        if (zb) zb.addEventListener('click', () => setZoom(!zoomed));
+        // Click outside the picture closes, click on the picture toggles zoom, swipe changes picture.
+        stage.addEventListener('click', (e) => {
+          if (drag && drag.moved) return;
+          if (e.target.closest && e.target.closest('.mozert-lb-img,.mozert-lb-clone')) setZoom(!zoomed, e);
+          else if (e.target === stage) close();
+        });
+        stage.addEventListener('pointerdown', (e) => {
+          drag = { x: e.clientX, y: e.clientY, moved: false, id: e.pointerId };
+        });
+        stage.addEventListener('pointermove', (e) => {
+          // While zoomed, the mouse pans the picture (the zoom follows the pointer).
+          if (zoomed && zrect && e.pointerType === 'mouse' && !drag) {
+            const z = box.querySelector('.mozert-lb-img,.mozert-lb-clone');
+            if (z) z.style.transformOrigin = clampN(((e.clientX - zrect.left) / zrect.width) * 100, 0, 100) + '% ' + clampN(((e.clientY - zrect.top) / zrect.height) * 100, 0, 100) + '%';
+          }
+          if (!drag) return;
+          const dx = e.clientX - drag.x;
+          if (Math.abs(dx) > 6 || Math.abs(e.clientY - drag.y) > 6) drag.moved = true;
+        });
+        stage.addEventListener('pointerup', (e) => {
+          if (!drag) return;
+          const dx = e.clientX - drag.x;
+          const moved = drag.moved;
+          if (moved && !zoomed && Math.abs(dx) > 50) show(idx + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+          setTimeout(() => (drag = null), 0);
+        });
+        document.addEventListener('keydown', key, true);
+        (box.querySelector('.mozert-lb-close') || box).focus();
+        if (sl.emit) sl.emit('lightboxOpen', i);
+      };
+      const close = () => {
+        if (!box) return;
+        const b = box;
+        box = null;
+        document.removeEventListener('keydown', key, true);
+        document.documentElement.classList.remove('mozert-lb-open');
+        b.classList.remove('mozert-lb-show');
+        setTimeout(() => b.parentNode && b.parentNode.removeChild(b), 180);
+        if (sl.active && idx !== sl.current && sl.canNav) sl.goTo(idx);
+        if (opener && opener.focus) {
+          try {
+            opener.focus({ preventScroll: true });
+          } catch (e) {}
+        }
+        if (sl.emit) sl.emit('lightboxClose', idx);
+      };
+      sl.el.classList.add('mozert-has-lightbox');
+      sl._on(sl.list, 'click', (e) => {
+        const slide = e.target.closest && e.target.closest('.mozert-slide');
+        if (!slide || !sl.track.contains(slide)) return;
+        if (e.target.closest('button, input, select, textarea, [data-no-lightbox]')) return;
+        const a = e.target.closest('a[href]');
+        if (a && !isImg(a.getAttribute('href'))) return;
+        const i = parseInt(slide.getAttribute('data-mozert-index'), 10);
+        if (isNaN(i)) return;
+        if (a) e.preventDefault();
+        open(i % Math.max(1, items().length));
+      });
+      sl.lightbox = { open, close, get isOpen() { return !!box; } };
+      return {
+        destroy() {
+          if (box) {
+            box.parentNode && box.parentNode.removeChild(box);
+            box = null;
+            document.removeEventListener('keydown', key, true);
+            document.documentElement.classList.remove('mozert-lb-open');
+          }
+          sl.el.classList.remove('mozert-has-lightbox');
+          delete sl.lightbox;
+        },
+      };
+    },
+  });
+
+  /* ---------------------------------------------------------- magnifier */
+  // magnifier: true | { zoom: 2.2, button: true, active: false }. Hover zoom like a product page: with the magnifier on,
+  // the picture under the mouse is enlarged around the pointer. A small button in the top right corner turns it on and off.
+  // A slide's image can name a sharper file with data-zoom (or data-full), which is loaded the first time it is magnified.
+  Mozert.use({
+    name: 'magnifier',
+    defaults: { magnifier: false },
+    create(sl) {
+      if (!sl.s.magnifier) return null;
+      const o = objOpt(sl.s.magnifier, { zoom: 2.2, button: true, active: false });
+      let on = sl._magOn !== undefined ? sl._magOn : !!o.active;
+      let cur = null;
+      let btn = null;
+      let pressed = false;
+      sl.el.classList.add('mozert-has-magnifier');
+      const targetOf = (slide) => slide.querySelector('img,picture,canvas,video') || slide.firstElementChild;
+      const reset = () => {
+        if (!cur) return;
+        cur.node.style.transform = '';
+        cur.node.style.transformOrigin = '';
+        cur.node.classList.remove('mozert-mag-node');
+        cur.slide.classList.remove('mozert-mag-host');
+        cur = null;
+      };
+      const hires = (node) => {
+        const img = node.tagName === 'IMG' ? node : node.querySelector && node.querySelector('img');
+        const url = img && (img.getAttribute('data-zoom') || img.getAttribute('data-full'));
+        if (!img || !url || img.__mozMag) return;
+        img.__mozMag = 1;
+        const pre = new Image();
+        pre.onload = () => {
+          img.src = url;
+        };
+        pre.src = url;
+      };
+      const move = (e) => {
+        if (!on || pressed || e.pointerType !== 'mouse') return;
+        const slide = e.target.closest && e.target.closest('.mozert-slide');
+        if (!slide || !sl.track.contains(slide) || (e.target.closest && e.target.closest('.mozert-mag-btn'))) {
+          reset();
+          return;
+        }
+        if (!cur || cur.slide !== slide) {
+          reset();
+          const node = targetOf(slide);
+          if (!node) return;
+          cur = { slide, node };
+          slide.classList.add('mozert-mag-host');
+          node.classList.add('mozert-mag-node');
+          hires(node);
+        }
+        const r = cur.slide.getBoundingClientRect();
+        cur.node.style.transformOrigin = clampN(((e.clientX - r.left) / r.width) * 100, 0, 100) + '% ' + clampN(((e.clientY - r.top) / r.height) * 100, 0, 100) + '%';
+        cur.node.style.transform = 'scale(' + o.zoom + ')';
+      };
+      const paint = () => {
+        sl.el.classList.toggle('mozert-mag-on', on);
+        if (btn) {
+          btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+          btn.classList.toggle('mozert-on', on);
+        }
+        if (!on) reset();
+      };
+      const set = (v) => {
+        on = !!v;
+        sl._magOn = on;
+        paint();
+        sl.emit('magnifier', on);
+      };
+      sl._on(sl.list, 'pointermove', move);
+      sl._on(sl.list, 'pointerleave', reset);
+      // Dragging the slider must feel normal: drop the zoom while the button is held down.
+      sl._on(sl.list, 'pointerdown', () => {
+        pressed = true;
+        reset();
+      });
+      sl._on(window, 'pointerup', () => {
+        pressed = false;
+      });
+      sl._sub('beforeChange', reset);
+      if (o.button) {
+        btn = mk('button', 'mozert-mag-btn');
+        btn.type = 'button';
+        btn.setAttribute('aria-label', sl._label('magnifier'));
+        btn.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>';
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          set(!on);
+        });
+        sl.el.appendChild(btn);
+      }
+      paint();
+      sl.magnifier = { enable: () => set(true), disable: () => set(false), toggle: () => set(!on), isOn: () => on };
+      return {
+        destroy() {
+          reset();
+          if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
+          sl.el.classList.remove('mozert-has-magnifier', 'mozert-mag-on');
+          delete sl.magnifier;
+        },
+      };
+    },
+  });
+
+  /* -------------------------------------------------------- scrollDriven */
+  // scrollDriven: true | { speed: 1.6, step: 0, top: 'center' | 0, offset: 0 }.
+  // The slider sticks while the user scrolls and the scroll moves the slides. `speed` is how many px the slides travel
+  // per px of page scroll (higher = less page height used); `step` forces a fixed number of px per slide instead.
+  // `top: 'center'` pins the slider in the middle of the screen, a number pins it that many px from the top;
+  // `offset` adds room for a sticky header. Works with non-looping, horizontal sliders.
+  Mozert.use({
+    name: 'scrollDriven',
+    defaults: { scrollDriven: false },
+    create(sl) {
+      const c = sl.s.scrollDriven;
+      if (!c || sl.s.vertical || sl.s.infinite || sl.s.stacked || !sl.canNav) return null;
+      const o = objOpt(c, { step: 0, top: 0, speed: 1.6, offset: 0, fill: false, bottom: 0 });
+      const el = sl.el;
+      const wrap = mk('div', 'mozert-sd');
+      el.parentNode.insertBefore(wrap, el);
+      wrap.appendChild(el);
+      el.classList.add('mozert-sd-stick');
+      let topPx = 0;
+      const place = () => {
+        if (o.fill) {
+          // fill: the pinned slider takes the whole screen height (minus offset/bottom), so there is no empty space around it
+          topPx = (o.top === 'center' ? 0 : parseFloat(o.top) || 0) + (parseFloat(o.offset) || 0);
+          el.classList.add('mozert-sd-fill');
+          el.style.height = Math.max(160, window.innerHeight - topPx - (parseFloat(o.bottom) || 0)) + 'px';
+          el.style.top = topPx + 'px';
+          return;
+        }
+        const h = el.offsetHeight;
+        topPx = o.top === 'center' ? Math.max(0, Math.round((window.innerHeight - h) / 2)) : parseFloat(o.top) || 0;
+        topPx += parseFloat(o.offset) || 0;
+        el.style.top = topPx + 'px';
+      };
+      let raf = 0;
+      let lastIdx = -1;
+      const steps = () => Math.max(1, sl.maxIndex);
+      const totalPx = () => {
+        if (o.step) return steps() * o.step;
+        const travel = Math.abs(sl._pos(sl.maxIndex) - sl._pos(0));
+        return Math.max(240, Math.round(travel / Math.max(0.2, o.speed)));
+      };
+      const size = () => {
+        place();
+        wrap.style.height = el.offsetHeight + totalPx() + 'px';
+      };
+      const update = () => {
+        raf = 0;
+        if (!sl.active) return;
+        const r = wrap.getBoundingClientRect();
+        const total = totalPx();
+        const p = clampN((topPx - r.top) / total, 0, 1);
+        const f = p * steps();
+        const i0 = Math.floor(f);
+        const i1 = Math.min(sl.maxIndex, i0 + 1);
+        const k = f - i0;
+        const idx = Math.round(f);
+        if (idx !== lastIdx) {
+          lastIdx = idx;
+          sl.goTo(idx, true);
+        }
+        sl._setPos(sl._pos(i0) + (sl._pos(i1) - sl._pos(i0)) * k, false);
+        wrap.style.setProperty('--sd-progress', p.toFixed(4));
+      };
+      const queue = () => {
+        if (!raf) raf = requestAnimationFrame(update);
+      };
+      size();
+      sl._on(window, 'scroll', queue, { passive: true });
+      sl._on(window, 'resize', () => {
+        size();
+        queue();
+      });
+      sl._sub('reInit', () => {
+        size();
+        queue();
+      });
+      update();
+      sl.scrollDriven = { update };
+      return {
+        destroy() {
+          if (raf) cancelAnimationFrame(raf);
+          el.classList.remove('mozert-sd-stick', 'mozert-sd-fill');
+          el.style.top = '';
+          if (o.fill) el.style.height = '';
+          if (wrap.parentNode) {
+            wrap.parentNode.insertBefore(el, wrap);
+            wrap.parentNode.removeChild(wrap);
+          }
+          delete sl.scrollDriven;
         },
       };
     },
