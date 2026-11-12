@@ -642,6 +642,7 @@ class Mozert {
       if (items.indexOf(n) === -1 && n.parentNode === el) el.removeChild(n);
     });
 
+    el.classList.remove('mozert-pre');
     el.classList.add('mozert-slider', 'mozert-initialized');
     el.classList.toggle('mozert-vertical', !!s.vertical);
     el.classList.toggle('mozert-rtl', !!s.rtl);

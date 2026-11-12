@@ -33,7 +33,7 @@ export interface MozertOptions {
   thumbs?: boolean | string | Element | { el?: string | Element; count?: number; position?: 'bottom' | 'top' | 'left' | 'right'; breakpoint?: number; options?: MozertOptions };
   lightbox?: boolean | { zoom?: boolean; loop?: boolean; maxZoom?: number };
   magnifier?: boolean | { zoom?: number; button?: boolean; active?: boolean };
-  scrollDriven?: boolean | { step?: number; top?: number | 'center'; offset?: number; speed?: number; fill?: boolean; bottom?: number };
+  scrollDriven?: boolean | { step?: number; top?: number | 'center'; offset?: number; speed?: number; fill?: boolean; bottom?: number; maxHeight?: number };
   bleed?: boolean | 'left' | 'right';
   accessibility: boolean;
   adaptiveHeight: boolean;

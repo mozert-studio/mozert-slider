@@ -642,6 +642,7 @@ class Mozert {
       if (items.indexOf(n) === -1 && n.parentNode === el) el.removeChild(n);
     });
 
+    el.classList.remove('mozert-pre');
     el.classList.add('mozert-slider', 'mozert-initialized');
     el.classList.toggle('mozert-vertical', !!s.vertical);
     el.classList.toggle('mozert-rtl', !!s.rtl);
@@ -3085,7 +3086,7 @@ Mozert._bridge = null;
     create(sl) {
       const c = sl.s.scrollDriven;
       if (!c || sl.s.vertical || sl.s.infinite || sl.s.stacked || !sl.canNav) return null;
-      const o = objOpt(c, { step: 0, top: 0, speed: 1.6, offset: 0, fill: false, bottom: 0 });
+      const o = objOpt(c, { step: 0, top: 0, speed: 1.6, offset: 0, fill: false, bottom: 0, maxHeight: 0 });
       const el = sl.el;
       const wrap = mk('div', 'mozert-sd');
       el.parentNode.insertBefore(wrap, el);
@@ -3095,9 +3096,12 @@ Mozert._bridge = null;
       const place = () => {
         if (o.fill) {
           // fill: the pinned slider takes the whole screen height (minus offset/bottom), so there is no empty space around it
-          topPx = (o.top === 'center' ? 0 : parseFloat(o.top) || 0) + (parseFloat(o.offset) || 0);
+          const base = (o.top === 'center' ? 0 : parseFloat(o.top) || 0) + (parseFloat(o.offset) || 0);
+          const avail = Math.max(160, window.innerHeight - base - (parseFloat(o.bottom) || 0));
+          const h = o.maxHeight > 0 ? Math.min(avail, Math.max(160, o.maxHeight)) : avail;
+          topPx = base + Math.round((avail - h) / 2); // maxHeight: keep it centred in the free space
           el.classList.add('mozert-sd-fill');
-          el.style.height = Math.max(160, window.innerHeight - topPx - (parseFloat(o.bottom) || 0)) + 'px';
+          el.style.height = h + 'px';
           el.style.top = topPx + 'px';
           return;
         }

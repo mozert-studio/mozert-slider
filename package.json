@@ -106,7 +106,7 @@
     "dev": "node scripts/dev.mjs",
     "start": "node scripts/dev.mjs",
     "build": "node scripts/build.mjs",
-    "test": "node tests/run.cjs dist/mozert.min.js && node tests/extra.cjs dist/mozert.min.js && node tests/labels.cjs dist/mozert.min.js && node tests/modules.cjs dist/mozert.min.js && node tests/features.cjs dist/mozert.min.js && node tests/jquery.cjs && node tests/packages.cjs && node tests/site.cjs",
+    "test": "node tests/run.cjs dist/mozert.min.js && node tests/extra.cjs dist/mozert.min.js && node tests/labels.cjs dist/mozert.min.js && node tests/modules.cjs dist/mozert.min.js && node tests/features.cjs dist/mozert.min.js && node tests/jquery.cjs && node tests/packages.cjs && node tests/responsive.cjs && node tests/site.cjs && node tests/preinit.cjs",
     "prepublishOnly": "npm run build",
     "site": "node scripts/site.mjs"
   },
