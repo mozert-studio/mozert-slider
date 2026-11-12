@@ -22,14 +22,15 @@ export function sizes() {
 
 export const version = () => JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
 
+// Minimum versions are what the code needs (feature support); CI runs the latest browser versions.
 // Minimum versions come from the platform features the code needs: ES2015 syntax, ResizeObserver (optional, guarded),
 // matchMedia, pointer/touch events, CSS flexbox + transforms, and aspect-ratio / gap for the thumbnail gallery.
 export const SUPPORT = [
-  ['Chrome, Edge, Opera (desktop)', '88+', 'Tested automatically (Chromium)'],
-  ['Chrome for Android', '88+', 'Tested automatically (Chromium, phone emulation)'],
-  ['Firefox (desktop and Android)', '89+', 'Test job in CI (Playwright Firefox)'],
-  ['Safari (macOS)', '15+', 'Test job in CI (Playwright WebKit)'],
-  ['Safari on iPhone and iPad', '15+', 'Test job in CI (Playwright WebKit, phone emulation)'],
+  ['Chrome, Edge, Opera (desktop)', '88+', 'Tested automatically in CI (Chromium, latest)'],
+  ['Chrome for Android', '88+', 'Tested automatically in CI (Chromium, phone-size screens)'],
+  ['Firefox (desktop and Android)', '89+', 'Tested automatically in CI (Firefox, latest)'],
+  ['Safari (macOS)', '15+', 'Tested automatically in CI (WebKit, the Safari engine, latest)'],
+  ['Safari on iPhone and iPad', '15+', 'Same WebKit engine as Safari, tested in CI; not run on a real iPhone'],
   ['Samsung Internet', '15+', 'Same engine as Chrome, not tested separately'],
   ['Internet Explorer', 'Not supported', '-'],
 ];
