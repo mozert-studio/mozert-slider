@@ -376,6 +376,8 @@ class Mozert {
     this._life.forEach((fn) => fn());
     this._life = [];
     if (this._ro) this._ro.disconnect();
+    if (this._roRaf) cancelAnimationFrame(this._roRaf);
+    this._roRaf = 0;
     registry.delete(this.el);
     this._dormant = false;
     this._handlers = {};
@@ -536,12 +538,18 @@ class Mozert {
       document.removeEventListener('visibilitychange', onVis);
     });
     if (typeof ResizeObserver !== 'undefined') {
+      // Handle the change in the next frame, not inside the observer callback: layout work in there
+      // makes Safari report "ResizeObserver loop completed with undelivered notifications".
       this._ro = new ResizeObserver(() => {
-        const w = this.el.clientWidth;
-        if (w !== this._lastW) {
-          this._lastW = w;
-          onResize();
-        }
+        if (this._roRaf) return;
+        this._roRaf = requestAnimationFrame(() => {
+          this._roRaf = 0;
+          const w = this.el.clientWidth;
+          if (w !== this._lastW) {
+            this._lastW = w;
+            onResize();
+          }
+        });
       });
       this._ro.observe(this.el);
     }

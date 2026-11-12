@@ -973,17 +973,23 @@
         th.refresh();
       };
       const th = new Mozert(host, Object.assign({ slidesToShow: count, slidesToScroll: 1, arrows: false, dots: false, infinite: false, swipeToSlide: true, spaceBetween: gap, focusOnSelect: true, initialSlide: 0, vertical: side }, o.options, { asNavFor: sl, thumbs: false, lightbox: false }));
-      let ro = null;
+      let ro = null, roStop = null;
       if (side) {
         fit();
         if (typeof ResizeObserver !== 'undefined') {
           let lastH = sl.el.offsetHeight;
+          let raf = 0;
           ro = new ResizeObserver(() => {
-            if (sl.el.offsetHeight !== lastH) {
-              lastH = sl.el.offsetHeight;
-              fit();
-            }
+            if (raf) return;
+            raf = requestAnimationFrame(() => {
+              raf = 0;
+              if (sl.el.offsetHeight !== lastH) {
+                lastH = sl.el.offsetHeight;
+                fit();
+              }
+            });
           });
+          roStop = () => { if (raf) cancelAnimationFrame(raf); raf = 0; };
           ro.observe(sl.el);
         }
       }
@@ -995,6 +1001,7 @@
         destroy() {
           if (sl.s.asNavFor === th) sl.s.asNavFor = prevNav;
           if (ro) ro.disconnect();
+          if (roStop) roStop();
           if (mq) mq.removeEventListener ? mq.removeEventListener('change', onMq) : mq.removeListener(onMq);
           host.removeAttribute('data-mozert-thumbs');
           host.style.removeProperty('--mozert-thumb-h');
