@@ -1,5 +1,5 @@
 /*!
- * Mozert 1.1.0
+ * Mozert 1.1.1
  * A dependency-free, responsive, touch-friendly carousel / slider.
  * MIT License
  */
@@ -10,7 +10,7 @@
 }(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
   //#region core
-const VERSION = '1.1.0';
+const VERSION = '1.1.1';
 
 const DEFAULTS = {
   accessibility: true,
@@ -76,7 +76,7 @@ const DEFAULTS = {
   on: null,
 };
 
-const LABELS = { slide: 'Slide {n} of {total}', prev: 'Previous slide', next: 'Next slide', goTo: 'Go to slide {n}' };
+const LABELS = { slide: 'Slide {n} of {total}', prev: 'Previous slide', next: 'Next slide', goTo: 'Go to slide {n}', fullscreen: 'Toggle fullscreen', close: 'Close', zoom: 'Zoom', lightbox: 'Image viewer', imageOf: 'Image {n} of {total}', magnifier: 'Magnifier' };
 const DEFAULT_PREV = '<button type="button" class="mozert-prev" aria-label="Previous slide">Previous</button>';
 const DEFAULT_NEXT = '<button type="button" class="mozert-next" aria-label="Next slide">Next</button>';
 const FOCUSABLE = 'a[href],button,input,select,textarea,[tabindex],[contenteditable="true"]';
@@ -469,7 +469,7 @@ class Mozert {
       s.slidesToShow = 1;
       s.slidesToScroll = 1;
     }
-    if (s.effect === 'coverflow') s.centerMode = true;
+    if (s.effect === 'coverflow' || s.effect === 'expand') s.centerMode = true;
     if (s.freeMode || s.virtual || s.bleed) s.infinite = false;
     if (s.marquee) {
       s.infinite = true;
@@ -1046,7 +1046,18 @@ class Mozert {
 
   _slideTo(target, opts = {}) {
     const s = this.s;
-    if (!this.active || !this.canNav) return false;
+    if (!this.active) return false;
+    if (!this.canNav) {
+      // A strip that shows every slide cannot move, but a synced partner can still change which slide is highlighted.
+      if (opts.fromSync) {
+        const sel = opts.sel !== undefined && opts.sel !== 0 ? opts.sel : null;
+        if (sel !== this._sel) {
+          this._sel = sel;
+          this._updateSlideClasses(this._logical);
+        }
+      }
+      return false;
+    }
     if (this.animating && !opts.fromSync && s.waitForAnimate) return false;
     let next = target;
     if (!s.infinite || s.stacked) next = s.stacked ? this._norm(next) : clamp(next, 0, this.maxIndex);
@@ -1055,9 +1066,19 @@ class Mozert {
     // (a thumbnail strip stops at its last full page, but the main slider should still go to the clicked one).
     const want = s.infinite || s.stacked ? real : clamp(target, 0, this.n - 1);
     if (next === this.current && !this.animating && !opts.force) {
-      if (!opts.fromSync && want !== next) {
-        this._sel = want;
-        this._updateSlideClasses(this._logical);
+      if (opts.fromSync) {
+        // Already at the clamped position: only move the highlight to the slide the partner asked for.
+        const sel = opts.sel !== undefined && opts.sel !== next ? opts.sel : null;
+        if (sel !== this._sel) {
+          this._sel = sel;
+          this._updateSlideClasses(this._logical);
+        }
+      } else {
+        // The strip already sits on this index (its last full page), but the partner may still be elsewhere.
+        if (want !== next) {
+          this._sel = want;
+          this._updateSlideClasses(this._logical);
+        }
         this._syncNav(want);
       }
       return false;
@@ -1319,11 +1340,19 @@ class Mozert {
           this._dragged = false;
           return;
         }
-        if (s.focusOnSelect && this.canNav) {
+        if (s.focusOnSelect && (this.canNav || s.asNavFor)) {
           const slide = e.target.closest ? e.target.closest('.mozert-slide') : null;
           if (slide && this.track.contains(slide)) {
             const i = parseInt(slide.getAttribute('data-mozert-index'), 10);
-            if (!isNaN(i)) this.goTo(i);
+            if (!isNaN(i)) {
+              if (this.canNav) this.goTo(i);
+              else {
+                // Nothing to scroll: just highlight the clicked slide and tell the partner.
+                this._sel = i;
+                this._updateSlideClasses(this._logical);
+                this._syncNav(i);
+              }
+            }
           }
         }
       },
@@ -1564,11 +1593,11 @@ class Mozert {
     const v = this.s.asNavFor;
     if (!v) return [];
     let els = [];
-    if (v instanceof Mozert) return [v];
+    if (v instanceof Mozert) return v.active && v !== this ? [v] : [];
     if (typeof v === 'string') els = Array.from(document.querySelectorAll(v));
     else if (isEl(v)) els = [v];
     else if (v.length) els = Array.from(v);
-    return els.map((e) => registry.get(e)).filter((i) => i && i !== this && i.active && i.canNav);
+    return els.map((e) => registry.get(e)).filter((i) => i && i !== this && i.active);
   }
 
   _syncNav(index) {

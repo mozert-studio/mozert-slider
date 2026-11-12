@@ -40,6 +40,16 @@ const DEMOS = [
   { id: 'd-bleed', plain: true, title: 'Bleed layout', desc: 'The first slide lines up with the page content, the rest run off the right edge of the screen. As you scroll, slides leave through the left edge, and the last slide stops at the content edge.', n: 8, opts: { bleed: true, slidesToShow: 2.6, spaceBetween: 16, infinite: false, dots: false, responsive: [{ breakpoint: 700, settings: { slidesToShow: 1.4 } }] } },
   { id: 'd-center', title: 'Center mode', desc: 'Active slide centred, neighbours peek. centerPadding sets the peek width.', n: 6, opts: { centerMode: true, centerPadding: '80px', slidesToShow: 1, spaceBetween: 16, dots: true, responsive: [{ breakpoint: 640, settings: { centerPadding: '32px' } }] } },
   { id: 'd-coverflow', title: 'Coverflow effect', desc: 'Centred 3D coverflow with rotate, depth and stretch options. Works with loop, drag and keyboard.', n: 7, opts: { effect: 'coverflow', slidesToShow: 3, infinite: true, speed: 600, cssEase: 'cubic-bezier(.25,.8,.25,1)', coverflowEffect: { rotate: 40, depth: 140, modifier: 1 } } },
+  { id: 'd-3d', kind: 'tiles', title: '3D carousel with raised background cards', desc: 'Coverflow with lift and fade: the active card is large, neighbours turn away, and cards further back rise and fade. Drag, click a card, or use the arrows.', n: 9, opts: { effect: 'coverflow', centerMode: true, slidesToShow: 3.4, spaceBetween: 0, infinite: true, speed: 650, cssEase: 'cubic-bezier(.25,.8,.25,1)', focusOnSelect: true, dots: false, coverflowEffect: { rotate: 34, depth: 200, scale: 0.8, lift: 70, fade: 0.14, modifier: 1 }, responsive: [{ breakpoint: 640, settings: { slidesToShow: 1.7, arrows: false } }] } },
+  { id: 'd-expand', kind: 'expand', title: 'Expanding cards', desc: 'effect: "expand". The active card opens wide while the others stay narrow, and the stage colour follows the active card. Drag, click a card or use the arrows.', n: 7, opts: { effect: 'expand', slidesToShow: 4.4, spaceBetween: 14, infinite: true, speed: 650, cssEase: 'cubic-bezier(.25,.8,.25,1)', focusOnSelect: true, dots: false, expandEffect: { extra: 1.25 }, responsive: [{ breakpoint: 900, settings: { slidesToShow: 3.2, expandEffect: { extra: 1.1 } } }, { breakpoint: 640, settings: { slidesToShow: 2.3, arrows: false, expandEffect: { extra: 1 } } }] } },
+  { id: 'd-thumbs1', kind: 'thumbs', title: 'thumbs: true. Gallery with one option', desc: 'One option builds the thumbnail strip, highlights the active one and keeps both in sync. Pass a selector (thumbs: "#nav") to use your own strip, or { count: 4 } to change how many show. The magnifier button (top right of the picture, magnifier: true) turns on hover zoom: move the mouse over the picture to magnify it.', n: 6, opts: { thumbs: { count: 4 }, magnifier: true, slidesToShow: 1, dots: false } },
+  { id: 'd-thumbs2', kind: 'thumbs', title: 'Vertical gallery: main picture left, thumbs right', desc: 'thumbs: { position: "right", count: 4 }. The strip stands beside the main picture, and its thumbnails always fill the same height. Use position: "left" to flip it.', n: 8, opts: { thumbs: { position: 'right', count: 4 }, slidesToShow: 1, dots: false } },
+  { id: 'd-product', kind: 'thumbs', title: 'Product gallery: thumbs on the left, hover magnifier', desc: 'thumbs: { position: "left" } with magnifier: true, like a shop product page. Turn on the magnifier button, then move the mouse over the picture to zoom into the detail. On phones the strip drops below the picture.', n: 6, opts: { thumbs: { position: 'left', count: 4 }, magnifier: { zoom: 2.4 }, slidesToShow: 1, dots: false, arrows: false } },
+  { id: 'd-lightbox', title: 'Lightbox: click a slide to open it full screen', desc: 'lightbox: true. Next and previous, arrow keys, swipe, click the picture to zoom, Esc to close. With real images it opens the big version (data-full or a link to the file) and shows data-caption.', n: 6, opts: { lightbox: true, slidesToShow: 3, spaceBetween: 14, dots: true, responsive: [{ breakpoint: 640, settings: { slidesToShow: 1.4 } }] } },
+  { id: 'd-scroll', kind: 'scroll', plain: true, title: 'Scroll-driven slider', desc: 'scrollDriven: true. Scroll down: the slider fills the screen and sticks while the slides move sideways with your scroll, then the page carries on.', n: 6, opts: { scrollDriven: { fill: true, offset: 76, bottom: 24, speed: 2.4 }, slidesToShow: 1.5, responsive: [{ breakpoint: 640, settings: { slidesToShow: 1.15 } }], spaceBetween: 16, infinite: false, arrows: false, dots: false, draggable: false } },
+  { id: 'd-arrows', title: 'Custom arrows and controls placed anywhere', desc: 'prevArrow and nextArrow take your own markup. appendArrows and appendDots move the arrows and dots into any element, here a control bar under the slider.', n: 6, extra: '<div class="cbar"><div class="cbar-a" id="arrows-bar-a"></div><div class="cbar-d" id="arrows-bar-d"></div></div>', opts: { slidesToShow: 2.2, spaceBetween: 16, arrows: true, dots: true, prevArrow: '<button type="button" class="mz-arr">&larr; Prev</button>', nextArrow: '<button type="button" class="mz-arr">Next &rarr;</button>', appendArrows: '#arrows-bar-a', appendDots: '#arrows-bar-d', responsive: [{ breakpoint: 640, settings: { slidesToShow: 1.2 } }] } },
+  { id: 'd-pad', title: 'centerPadding: a wide peek on both sides', desc: 'centerMode with centerPadding: "140px" shows a big slice of the neighbours; the responsive setting shrinks it to 36px on phones.', n: 6, opts: { centerMode: true, centerPadding: '140px', slidesToShow: 1, spaceBetween: 14, dots: true, responsive: [{ breakpoint: 640, settings: { centerPadding: '36px' } }] } },
+  { id: 'd-rtl', title: 'Right to left (rtl)', desc: 'rtl: true starts from the right, reverses the swipe and arrow directions and the keyboard arrows. Use it for Arabic, Hebrew and Urdu pages.', n: 6, opts: { rtl: true, slidesToShow: 2.2, spaceBetween: 16, dots: true, responsive: [{ breakpoint: 640, settings: { slidesToShow: 1.2 } }] } },
   { id: 'd-cube', title: 'Cube effect', desc: 'A real 3D cube that follows your finger while dragging.', n: 4, opts: { effect: 'cube', pagination: { type: 'bullets' }, speed: 600 } },
   { id: 'd-flip', title: 'Flip effect', desc: 'Slides flip around the Y axis. Drag to scrub through the flip.', n: 4, opts: { effect: 'flip', pagination: { type: 'bullets' }, speed: 600 } },
   { id: 'd-cards', title: 'Cards effect', desc: 'A swipeable stack: drag the top card away to reveal the next.', n: 6, opts: { effect: 'cards', arrows: false, cardsEffect: { perSlideOffset: 12, perSlideRotate: 3 } } },
@@ -60,10 +70,13 @@ const DEMOS = [
 const PAR = ['Layer', 'Depth', 'Motion', 'Speed', 'Scroll'];
 const parSlides = (n) => Array.from({ length: n }, (_, i) => `<div><div class="sc par sc-${i % 8}"><div class="par-bg" data-parallax-x="-30%"><i class="sc-s"></i></div><span class="sc-k" data-parallax-x="-60%">${PAR[i % 5]}</span><strong class="sc-h" data-parallax-x="-110%">${String(i + 1).padStart(2, '0')}</strong><span class="sc-p" data-parallax-x="-180%" data-parallax-opacity="0">Each layer moves at its own speed</span></div></div>`).join('');
 const catSlides = (n) => Array.from({ length: n }, (_, i) => { const c = 'abc'[i % 3]; return `<div class="cat-${c}"><div class="sc sc-${i % 8}"><i class="sc-s"></i><span class="sc-k">Category ${c.toUpperCase()}</span><strong class="sc-h">${String(i + 1).padStart(2, '0')}</strong><span class="sc-p">Mozert Slider</span></div></div>`; }).join('');
+const SC_BG = ['#ff6a3d', '#3633f5', '#1f2a44', '#0f8a63', '#7a3cff', '#0b1020', '#f59e0b', '#c2185b'];
+// Same numbered panels as every other demo; expand also tags each slide with its stage colour.
+const expandSlides = (n, base) => slides(n, base).replace(/<div><div class="sc sc-(\d)/g, (m, k) => `<div data-bg="${SC_BG[+k]}"><div class="sc sc-${k}`);
 const demoHtml = (d, base) => {
-  const inner = d.chips ? d.chips.map((c) => `<div><div class="chip">${c}</div></div>`).join('') : d.kind === 'virtual' ? '' : d.kind === 'parallax' ? parSlides(d.n) : d.kind === 'filter' ? catSlides(d.n) : slides(d.n, base, d.id === 'd-zoom' ? 'zoom' : '');
+  const inner = d.chips ? d.chips.map((c) => `<div><div class="chip">${c}</div></div>`).join('') : d.kind === 'virtual' ? '' : d.kind === 'parallax' ? parSlides(d.n) : d.kind === 'filter' ? catSlides(d.n) : d.kind === 'tiles' ? slides(d.n, base) : d.kind === 'expand' ? expandSlides(d.n, base) : slides(d.n, base, d.id === 'd-zoom' ? 'zoom' : '');
   const shown = d.shown || (d.kind === 'virtual' ? `const slides = Array.from({ length: 2000 }, (_, i) => '<div>Slide ' + (i + 1) + '</div>');\nnew Mozert('#slider', {\n  virtual: { slides, addSlidesBefore: 2, addSlidesAfter: 3 },\n  slidesToShow: 3, spaceBetween: 12, infinite: false\n});` : `new Mozert('#slider', ${JSON.stringify(d.opts, null, 2)});`);
-  return `<article class="demo${d.plain ? ' plain' : ''}" id="${d.id}-box"><h3>${esc(d.title)}</h3><p>${esc(d.desc)}</p><div class="stage${d.v ? ' v' : ''}"><div id="${d.id}">${inner}</div></div>${d.extra || ''}<details><summary>Code</summary>${code(shown)}</details></article>`;
+  return `<article class="demo${d.plain ? ' plain' : ''}" id="${d.id}-box"><h3>${esc(d.title)}</h3><p>${esc(d.desc)}</p><div class="stage${d.v ? ' v' : ''}${d.kind === 'tiles' ? ' tiles' : ''}${d.kind === 'expand' ? ' xstage' : ''}${d.kind === 'scroll' ? ' sdstage' : ''}"><div id="${d.id}">${inner}</div></div>${d.extra || ''}<details><summary>Code</summary>${code(shown)}</details></article>`;
 };
 
 /* ---------------------------------------------------------------- shell */
@@ -142,7 +155,7 @@ ${[
   ['Navigation', ['Arrows (custom markup, <code>appendArrows</code>)', 'Dots and <code>customPaging</code>', 'Pagination: bullets, dynamic, fraction, progress bar, custom', 'Scrollbar (draggable, auto-hide)', 'Keyboard (focused or global)', 'Hash navigation and history', 'Mousewheel']],
   ['Interaction', ['Pointer-based drag with axis locking', '<code>touchRatio</code>, <code>dragThreshold</code>, <code>swipeToSlide</code>, <code>edgeFriction</code>', 'Free mode with momentum and sticky snapping', 'Zoom: double-tap, pinch, pan, ctrl+wheel', 'Click to select with <code>focusOnSelect</code>']],
   ['Playback', ['Autoplay with pause on hover, focus and dots hover', '<code>autoplayReverse</code>, <code>stopOnLastSlide</code>, <code>disableOnInteraction</code>', 'Events: <code>autoplayStart</code>, <code>autoplayStop</code>, <code>autoplayTimeLeft</code>', 'Marquee / ticker mode', 'Video autoplay with wait-for-end']],
-  ['Content', ['Lazy load: <code>data-lazy</code>, <code>data-lazy-srcset</code>, <code>data-lazy-bg</code>, progressive', 'Virtual slides for thousands of items', 'Parallax on any element', 'Fullscreen button', 'Add, remove, filter and unfilter slides at runtime', 'Synced sliders via <code>asNavFor</code> (thumbnails, controllers)']],
+  ['Content', ['Lazy load: <code>data-lazy</code>, <code>data-lazy-srcset</code>, <code>data-lazy-bg</code>, progressive', 'Virtual slides for thousands of items', 'Parallax on any element', 'Fullscreen button', 'Built-in lightbox: <code>lightbox: true</code>', 'Thumbnail gallery from one option: <code>thumbs: true</code>', 'Scroll-driven slider: <code>scrollDriven: true</code>', 'Add, remove, filter and unfilter slides at runtime', 'Synced sliders via <code>asNavFor</code> (thumbnails, controllers)']],
   ['Accessibility', ['ARIA roles and labels, translatable via <code>labels</code>', 'Roving tabindex and keyboard arrows', 'Live region toggles with autoplay', '<code>prefers-reduced-motion</code> respected', 'Visible focus styles']],
   ['Integration', ['jQuery adapter and DOM events (<code>mozert:afterChange</code>)', 'ESM, CJS, UMD and TypeScript types', '<code>data-mozert</code> JSON config with auto-init', 'Module API: <code>Mozert.use()</code> for your own effects and features']],
 ].map(([t, items]) => `<section><h2>${t}</h2><ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul></section>`).join('')}
@@ -166,7 +179,7 @@ new Mozert('#nav',  { slidesToShow: 4, spaceBetween: 10, asNavFor: '#main', focu
 {
   const D = M.defaults;
   const DESC = {
-    accessibility: 'Adds ARIA roles/labels and keyboard support.', adaptiveHeight: 'Animate the list height to the active slide (single-slide views).', appendArrows: 'Element or selector to place the arrows in.', appendDots: 'Element or selector to place the dots in.', arrows: 'Show previous/next arrows.', asNavFor: 'Selector of another slider to keep in sync (thumbnails, controllers).', autoplay: 'Start automatically.', disableOnInteraction: 'Stop autoplay for good after the user clicks, taps or drags.', autoplayReverse: 'Autoplay moves backwards.', autoplaySpeed: 'Delay between slides in ms.', centerMode: 'Centre the active slide; neighbours peek.', centerPadding: 'Peek width in center mode (px or %).', cssEase: 'CSS easing for transitions.', customPaging: 'Function (slider, i) returning markup for dot i.', dots: 'Show dots.', dotsClass: 'Class of the dots list.', dragThreshold: 'Pixels to move before a drag starts.', draggable: 'Mouse dragging (touch is controlled by <code>swipe</code>).', easing: 'Easing used when <code>useCSS</code> is false.', edgeFriction: 'Resistance when dragging past the first/last slide (non-infinite).', edgePadding: 'Space before the first and after the last slide (px or %).', effect: '<code>slide</code>, <code>fade</code>, <code>coverflow</code>, <code>cube</code>, <code>flip</code>, <code>cards</code> or <code>creative</code>.', fade: 'Shortcut for <code>effect: "fade"</code>.', focusOnSelect: 'Clicking a slide makes it active.', freeMode: 'Drag with momentum and no snapping. Accepts an options object.', infinite: 'Loop forever using clones.', initialSlide: 'First slide index.', labels: 'Object overriding built-in ARIA strings (translations).', lazyLoad: '<code>ondemand</code> or <code>progressive</code>.', mobileFirst: 'Breakpoints are min-width instead of max-width.', nextArrow: 'Custom markup/element for the next arrow.', pauseOnDotsHover: 'Pause autoplay when hovering the dots.', pauseOnFocus: 'Pause autoplay on keyboard focus.', pauseOnHover: 'Pause autoplay on hover.', prevArrow: 'Custom markup/element for the previous arrow.', respectReducedMotion: 'Disable autoplay/animation for prefers-reduced-motion users.', respondTo: '<code>window</code>, <code>slider</code> or <code>min</code> width used for breakpoints.', responsive: 'Array of <code>{ breakpoint, settings }</code>. <code>settings: "destroy"</code> turns the slider off at that breakpoint.', rows: 'Grid rows.', rtl: 'Right-to-left.', slide: 'Selector of the slide elements inside the container.', slideWidth: 'Fixed slide width in px; slides per view is computed.', slidesPerRow: 'Columns per page when <code>rows</code> &gt; 1.', slidesToScroll: 'Slides per move.', slidesToShow: 'Slides visible (fractional allowed).', spaceBetween: 'Gap between slides in px.', speed: 'Transition time in ms.', stopOnLastSlide: 'Stop autoplay after the last slide (non-infinite).', swipe: 'Touch swiping.', swipeToSlide: 'Land on the slide nearest the release point.', touchMove: 'Slides follow the finger.', touchRatio: 'Drag distance multiplier.', touchThreshold: 'Fraction of the width needed to change slide (width / value).', useCSS: 'CSS transitions (false = JS animation).', useTransform: 'Use transform instead of left/top.', variableWidth: 'Slides keep their own width.', vertical: 'Vertical slider.', verticalSwiping: 'Vertical swipe gestures.', waitForAnimate: 'Ignore input while animating.', zIndex: 'Base z-index for stacked effects.', on: 'Event handlers object, e.g. <code>{ afterChange(s, i) {} }</code>.', coverflowEffect: '<code>rotate</code>, <code>depth</code>, <code>stretch</code>, <code>scale</code>, <code>modifier</code>.', cubeEffect: '<code>perspective</code>.', flipEffect: '<code>perspective</code>, <code>limitRotation</code>.', cardsEffect: '<code>perSlideOffset</code>, <code>perSlideRotate</code>, <code>rotate</code>, <code>visible</code>.', creativeEffect: '<code>prev</code> / <code>next</code> with <code>translate</code>, <code>rotate</code>, <code>opacity</code>, <code>scale</code>; <code>limitProgress</code>.', parallax: 'Enable <code>data-parallax-*</code> attributes.', zoom: '<code>true</code> or <code>{ max, min, toggle, step }</code>.', virtual: '<code>{ slides, renderSlide, addSlidesBefore, addSlidesAfter, cache }</code>.', hashNavigation: '<code>true</code> or <code>{ watchState, replaceState, prefix }</code>. Slides use <code>data-hash</code>.', scrollbar: '<code>true</code> or <code>{ el, draggable, hide }</code>.', pagination: '<code>{ el, type, clickable, renderBullet, ... }</code>. Types: bullets, dynamic, fraction, progressbar, custom.', mousewheel: '<code>true</code> or <code>{ sensitivity, forceToAxis, releaseOnEdges, thresholdTime }</code>.', globalKeyboard: 'Arrow keys control the slider while it is in the viewport.', marquee: '<code>{ speed, pauseOnHover, direction }</code>. Continuous ticker.', videoAutoplay: 'Play the active slide\'s <code>&lt;video&gt;</code>. <code>{ wait }</code> holds autoplay until it ends.', fullscreen: 'Add a fullscreen toggle button.', bleed: '<code>true</code>, <code>"left"</code> or <code>"right"</code>. Slides overflow the container towards the viewport edge; the first and last slide still align with the container. Forces <code>infinite: false</code> and sets <code>overflow-x: clip</code> on <code>body</code> so the page gets no horizontal scrollbar.',
+    accessibility: 'Adds ARIA roles/labels and keyboard support.', adaptiveHeight: 'Animate the list height to the active slide (single-slide views).', appendArrows: 'Element or selector to place both arrows in (for example a control bar under the slider). Default: inside the slider.', appendDots: 'Element or selector to place the dots in. Default: inside the slider, under the slides.', arrows: 'Show previous/next arrows.', asNavFor: 'Selector of another slider to keep in sync (thumbnails, controllers).', autoplay: 'Start automatically.', disableOnInteraction: 'Stop autoplay for good after the user clicks, taps or drags.', autoplayReverse: 'Autoplay moves backwards.', autoplaySpeed: 'Delay between slides in ms.', centerMode: 'Centre the active slide; neighbours peek.', centerPadding: 'Width of the peek on each side in <code>centerMode</code>: "50px" or "10%". Change it per screen size with <code>responsive</code>.', cssEase: 'CSS easing for transitions.', customPaging: 'Function (slider, i) returning markup for dot i.', dots: 'Show dots.', dotsClass: 'Class of the dots list.', dragThreshold: 'Pixels to move before a drag starts.', draggable: 'Mouse dragging (touch is controlled by <code>swipe</code>).', easing: 'Easing used when <code>useCSS</code> is false.', edgeFriction: 'Resistance when dragging past the first/last slide (non-infinite).', edgePadding: 'Space before the first and after the last slide (px or %).', effect: '<code>slide</code>, <code>fade</code>, <code>coverflow</code>, <code>cube</code>, <code>flip</code>, <code>cards</code>, <code>creative</code> or <code>expand</code>.', fade: 'Shortcut for <code>effect: "fade"</code>.', focusOnSelect: 'Clicking a slide makes it active.', freeMode: 'Drag with momentum and no snapping. Accepts an options object.', infinite: 'Loop forever using clones.', initialSlide: 'First slide index.', labels: 'Object overriding built-in ARIA strings (translations).', lazyLoad: '<code>ondemand</code> or <code>progressive</code>.', mobileFirst: 'Breakpoints are min-width instead of max-width.', nextArrow: 'Your own markup (an HTML string) or an element for the next arrow. It gets the class <code>mozert-next</code> and works as the next button.', pauseOnDotsHover: 'Pause autoplay when hovering the dots.', pauseOnFocus: 'Pause autoplay on keyboard focus.', pauseOnHover: 'Pause autoplay on hover.', prevArrow: 'Your own markup (an HTML string) or an element for the previous arrow. It gets the class <code>mozert-prev</code> and works as the previous button.', respectReducedMotion: 'Disable autoplay/animation for prefers-reduced-motion users.', respondTo: '<code>window</code>, <code>slider</code> or <code>min</code> width used for breakpoints.', responsive: 'Array of <code>{ breakpoint, settings }</code>. <code>settings: "destroy"</code> turns the slider off at that breakpoint.', rows: 'Grid rows.', rtl: 'Right-to-left layout for Arabic, Hebrew, Urdu and other RTL pages. Slides start from the right, swipe, arrows and keyboard arrows are reversed, and <code>dir="rtl"</code> is set on the slider.', slide: 'Selector of the slide elements inside the container.', slideWidth: 'Fixed slide width in px; slides per view is computed.', slidesPerRow: 'Columns per page when <code>rows</code> &gt; 1.', slidesToScroll: 'Slides per move.', slidesToShow: 'Slides visible (fractional allowed).', spaceBetween: 'Gap between slides in px.', speed: 'Transition time in ms.', stopOnLastSlide: 'Stop autoplay after the last slide (non-infinite).', swipe: 'Touch swiping.', swipeToSlide: 'Land on the slide nearest the release point.', touchMove: 'Slides follow the finger.', touchRatio: 'Drag distance multiplier.', touchThreshold: 'Fraction of the width needed to change slide (width / value).', useCSS: 'CSS transitions (false = JS animation).', useTransform: 'Use transform instead of left/top.', variableWidth: 'Slides keep their own width.', vertical: 'Vertical slider.', verticalSwiping: 'Vertical swipe gestures.', waitForAnimate: 'Ignore input while animating.', zIndex: 'Base z-index for stacked effects.', on: 'Event handlers object, e.g. <code>{ afterChange(s, i) {} }</code>.', coverflowEffect: '<code>rotate</code>, <code>depth</code>, <code>stretch</code>, <code>scale</code>, <code>modifier</code>, <code>lift</code> (raises background cards), <code>fade</code> (dims them).', expandEffect: '<code>extra</code>: how much wider the active card gets, as a multiple of a slide width (default 1.4). The card inside each slide is resized, so give slides a single child element.', cubeEffect: '<code>perspective</code>.', flipEffect: '<code>perspective</code>, <code>limitRotation</code>.', cardsEffect: '<code>perSlideOffset</code>, <code>perSlideRotate</code>, <code>rotate</code>, <code>visible</code>.', creativeEffect: '<code>prev</code> / <code>next</code> with <code>translate</code>, <code>rotate</code>, <code>opacity</code>, <code>scale</code>; <code>limitProgress</code>.', parallax: 'Enable <code>data-parallax-*</code> attributes.', zoom: '<code>true</code> or <code>{ max, min, toggle, step }</code>.', virtual: '<code>{ slides, renderSlide, addSlidesBefore, addSlidesAfter, cache }</code>.', hashNavigation: '<code>true</code> or <code>{ watchState, replaceState, prefix }</code>. Slides use <code>data-hash</code>.', scrollbar: '<code>true</code> or <code>{ el, draggable, hide }</code>.', pagination: '<code>{ el, type, clickable, renderBullet, ... }</code>. Types: bullets, dynamic, fraction, progressbar, custom.', mousewheel: '<code>true</code> or <code>{ sensitivity, forceToAxis, releaseOnEdges, thresholdTime }</code>.', globalKeyboard: 'Arrow keys control the slider while it is in the viewport.', marquee: '<code>{ speed, pauseOnHover, direction }</code>. Continuous ticker.', videoAutoplay: 'Play the active slide\'s <code>&lt;video&gt;</code>. <code>{ wait }</code> holds autoplay until it ends.', fullscreen: 'Add a fullscreen toggle button.', thumbs: '<code>true</code> builds a thumbnail strip below the slider; a selector or element uses your own strip; <code>{ el, count, options }</code> for more control. Keeps both sliders in sync.', lightbox: 'Click a slide to open it full screen. <code>true</code> or <code>{ zoom, loop, maxZoom }</code>.', magnifier: 'Hover zoom for product galleries. <code>true</code> or <code>{ zoom: 2.2, button: true, active: false }</code>. A button in the top right corner turns it on and off; <code>data-zoom</code> on an image loads a sharper file.', scrollDriven: 'Page scroll moves the slides while the slider sticks to the top. <code>true</code> or <code>{ fill, speed, top, offset, bottom, step }</code>. Horizontal, non-looping sliders only.', bleed: '<code>true</code>, <code>"left"</code> or <code>"right"</code>. Slides overflow the container towards the viewport edge; the first and last slide still align with the container. Forces <code>infinite: false</code> and sets <code>overflow-x: clip</code> on <code>body</code> so the page gets no horizontal scrollbar.',
   };
   const missing = Object.keys(D).filter((k) => !DESC[k]);
   if (missing.length) console.warn('Docs: options without description:', missing.join(', '));
@@ -174,7 +187,7 @@ new Mozert('#nav',  { slidesToShow: 4, spaceBetween: 10, asNavFor: '#main', focu
   const rows = Object.keys(D).sort().map((k) => [`<code>${k}</code>`, fmt(D[k]), DESC[k] || '']);
   add('docs', 'Documentation | Mozert Slider', 'How to use Mozert Slider: markup, options, effects, modules, events, lazy loading, accessibility and theming.', `
 <h1>Documentation</h1>
-<div class="split"><nav class="toc" aria-label="On this page"><a href="#markup">Markup</a><a href="#init">Initialising</a><a href="#options">Options</a><a href="#responsive">Responsive</a><a href="#effects">Effects</a><a href="#pagination">Pagination</a><a href="#free">Free mode</a><a href="#parallax">Parallax</a><a href="#zoom">Zoom</a><a href="#virtual">Virtual slides</a><a href="#lazy">Lazy loading</a><a href="#sync">Synced sliders</a><a href="#a11y">Accessibility</a><a href="#theming">Theming</a></nav><div>
+<div class="split"><nav class="toc" aria-label="On this page"><a href="#markup">Markup</a><a href="#init">Initialising</a><a href="#options">Options</a><a href="#responsive">Responsive</a><a href="#effects">Effects</a><a href="#pagination">Pagination</a><a href="#free">Free mode</a><a href="#parallax">Parallax</a><a href="#zoom">Zoom</a><a href="#virtual">Virtual slides</a><a href="#lazy">Lazy loading</a><a href="#arrows-dots">Arrows and dots</a><a href="#center-padding">Center padding</a><a href="#rtl">RTL</a><a href="#thumbs">Thumbs gallery</a><a href="#lightbox">Lightbox</a><a href="#magnifier">Magnifier</a><a href="#scroll-driven">Scroll-driven</a><a href="#sync">Synced sliders</a><a href="#a11y">Accessibility</a><a href="#theming">Theming</a></nav><div>
 <section id="markup"><h2 style="margin-top:0">Markup</h2><p>Every direct child of the container is a slide. No wrapper elements needed.</p>${code(`<div class="slider">
   <div>Slide 1</div>
   <div>Slide 2</div>
@@ -198,7 +211,14 @@ $('.slider').on('afterChange', function (e, slider, current) {});`]])}</section>
 <section id="effects"><h2>Effects</h2><p>Choose with <code>effect</code>. Each effect reads its own options object. They respond to dragging, so the slide follows your finger.</p>${code(`new Mozert('.slider', {
   effect: 'coverflow',
   slidesToShow: 3,
-  coverflowEffect: { rotate: 40, depth: 140, stretch: 0, modifier: 1 }
+  coverflowEffect: { rotate: 40, depth: 140, stretch: 0, modifier: 1, scale: 0.8, lift: 60, fade: 0.2 }  // lift raises background cards, fade dims them
+});
+
+// Expanding cards: the active card opens wide, the others stay narrow
+new Mozert('.slider', {
+  effect: 'expand',
+  slidesToShow: 4.4,
+  expandEffect: { extra: 1.4 }  // how much wider the active card gets (1.4 = 140% of a slide)
 });
 
 new Mozert('.slider', {
@@ -207,7 +227,7 @@ new Mozert('.slider', {
     prev: { translate: ['-120%', 0, -300], rotate: [0, 0, -6], opacity: 0 },
     next: { translate: ['100%', 0, 0] }
   }
-});`)}<div class="callout">Cube, flip, cards, creative and fade show one slide at a time (<code>slidesToShow</code> is forced to 1). Coverflow centres the active slide and supports several visible slides.</div></section>
+});`)}<div class="callout">Cube, flip, cards, creative and fade show one slide at a time (<code>slidesToShow</code> is forced to 1). Coverflow and expand centre the active slide and support several visible slides.</div></section>
 <section id="pagination"><h2>Pagination</h2>${code(`new Mozert('.slider', {
   pagination: {
     el: '#my-pagination',        // optional, otherwise created inside the slider
@@ -247,6 +267,66 @@ slider.virtual.appendSlide(item);  slider.virtual.prependSlide(item);  slider.vi
 <section id="lazy"><h2>Lazy loading</h2>${code(`<img data-lazy="photo.jpg" data-lazy-srcset="photo-2x.jpg 2x" alt="">
 <div data-lazy-bg="hero.jpg"></div>
 <!-- lazyLoad: 'ondemand' (default) loads when a slide is about to show; 'progressive' loads the rest after the first paint. -->`)}<p>Events: <code>lazyLoaded</code> and <code>lazyLoadError</code>.</p></section>
+<section id="arrows-dots"><h2>Arrows and dots</h2>${code(`// Your own arrow markup
+new Mozert('.slider', {
+  prevArrow: '<button type="button" class="my-arrow">&larr; Prev</button>',
+  nextArrow: '<button type="button" class="my-arrow">Next &rarr;</button>'
+});
+
+// Put the arrows and the dots in a control bar anywhere on the page
+// <div class="bar"><div id="arrows"></div><div id="dots"></div></div>
+new Mozert('.slider', {
+  appendArrows: '#arrows',   // selector or element
+  appendDots: '#dots',
+  dots: true
+});`)}<p><code>prevArrow</code> and <code>nextArrow</code> take an HTML string or an element, so the arrows can look and read however you want. Mozert adds the classes <code>mozert-prev</code> / <code>mozert-next</code> and wires the clicks, the disabled state at the ends and the <code>aria-label</code>. <code>appendArrows</code> and <code>appendDots</code> move the arrows and the dots out of the slider into any element. The default round arrows are positioned over the slider, so when you append them elsewhere give them your own style (for example <code>position: static</code>). The dots keep working with <code>customPaging</code>, <code>dotsClass</code> and <code>dots: 'dynamic'</code> style pagination. See the live example on the <a href="../examples/index.html#d-arrows-box">Examples page</a>.</p></section>
+<section id="center-padding"><h2>Center padding</h2>${code(`new Mozert('.slider', {
+  centerMode: true,
+  centerPadding: '140px',   // peek width on each side: px or %
+  slidesToShow: 1,
+  responsive: [{ breakpoint: 640, settings: { centerPadding: '36px' } }]
+});`)}<p>In <code>centerMode</code> the active slide stays in the middle and <code>centerPadding</code> sets how much of the neighbours you see on each side. Use pixels or a percentage, and shrink it on phones with <code>responsive</code>. It works with <code>infinite</code>, arrows, dots and the effects that centre the active slide.</p></section>
+<section id="rtl"><h2>Right to left (rtl)</h2>${code(`new Mozert('.slider', {
+  rtl: true,
+  slidesToShow: 2.2,
+  dots: true
+});`)}<p><code>rtl: true</code> is for right-to-left pages. The slides start from the right, swiping, the previous/next arrows and the keyboard arrow keys follow the reading direction, and the slider gets <code>dir="rtl"</code> so your text and layout flip with it. It works with vertical off, with <code>infinite</code>, <code>centerMode</code>, thumbs and every pagination type. See the live example on the <a href="../examples/index.html#d-rtl-box">Examples page</a>.</p></section>
+<section id="thumbs"><h2>Thumbnails</h2>${code(`// One option: a strip is created below the slider
+new Mozert('#gallery', { thumbs: true });
+
+// Your own strip (left empty it is filled for you; filled by you it is used as is)
+new Mozert('#gallery', { thumbs: '#nav' });
+new Mozert('#gallery', { thumbs: { el: '#nav', count: 4, options: { spaceBetween: 6 } } });
+
+// Vertical gallery: main picture on the left, thumbnails stacked on the right
+new Mozert('#gallery', { thumbs: { position: 'right', count: 4 } });
+// position: 'left' | 'right' | 'top' | 'bottom' (default)`)}<p>Thumbnails come from <code>data-thumb</code> on the slide, then the first <code>&lt;img&gt;</code>, then the slide's background. Clicking a thumbnail opens that slide, and changing slides highlights the matching thumbnail, even when the strip has nothing to scroll.</p></section>
+<section id="lightbox"><h2>Lightbox</h2>${code(`new Mozert('#gallery', { lightbox: true });
+new Mozert('#gallery', { lightbox: { zoom: true, loop: true, maxZoom: 2.5 } });
+
+<!-- Big image: data-full on the slide or img, or a link to the file. Caption: data-caption. -->
+<div data-caption="Sunrise"><a href="photos/sunrise-large.jpg"><img src="photos/sunrise.jpg" alt="Sunrise"></a></div>
+
+slider.lightbox.open(2);  slider.lightbox.close();  slider.lightbox.isOpen;`)}<p>Arrow keys, swipe, <kbd>Esc</kbd>, click the picture to zoom, focus is kept inside the dialog and returns to where you were. When you close it the slider shows the last picture you viewed. Events: <code>lightboxOpen</code>, <code>lightboxChange</code>, <code>lightboxClose</code>. Ordinary links inside slides still work.</p></section>
+<section id="magnifier"><h2>Magnifier</h2>${code(`// Product gallery: thumbnails on the left, hover zoom on the picture
+new Mozert('#product', {
+  thumbs: { position: 'left', count: 4 },
+  magnifier: true            // or { zoom: 2.4, button: true, active: false }
+});
+
+<img src="shoe-800.jpg" data-zoom="shoe-2400.jpg" alt="Shoe">   <!-- optional sharper file -->
+
+slider.magnifier.enable();  slider.magnifier.disable();  slider.magnifier.toggle();  slider.magnifier.isOn();`)}<p>A small magnifier button sits in the top right corner of the picture. When it is on, moving the mouse over a slide enlarges it around the pointer, like a product page in a shop. It is for mouse users only; touch screens keep normal swiping, and dragging the slider turns the zoom off while you hold the button. Set <code>button: false</code> to hide the button and control it with the API instead. Event: <code>magnifier</code>.</p></section>
+<section id="scroll-driven"><h2>Scroll-driven</h2>${code(`new Mozert('#story', {
+  scrollDriven: {
+    fill: true,     // the pinned slider takes the whole screen height: no empty space above or below
+    offset: 76,     // px kept free at the top for a sticky header
+    bottom: 24,     // px kept free at the bottom
+    // top: 'center' // without fill: pin in the middle of the screen (or a number of px from the top)
+    speed: 1.6      // px the slides travel per px of scroll: higher = shorter section, less empty space
+  },
+  infinite: false, arrows: false, dots: false, draggable: false
+});`)}<p>The slider is wrapped in a tall section and sticks while you scroll through it. The section is only as tall as the slides need to travel divided by <code>speed</code>; use <code>step</code> (px of scrolling per slide) if you want a fixed distance instead. To avoid empty space above and below, make the slider as tall as the screen under your header, for example <code>.story .slide { height: calc(100svh - 96px) }</code> with <code>top: 76</code> (the header height plus a small gap). Needs a horizontal, non-looping slider, and no ancestor with <code>overflow: hidden</code> (that breaks <code>position: sticky</code>).</p></section>
 <section id="sync"><h2>Synced sliders</h2>${code(`new Mozert('#main',  { arrows: false, asNavFor: '#thumbs' });
 new Mozert('#thumbs', { slidesToShow: 5, asNavFor: '#main', focusOnSelect: true });`)}</section>
 <section id="a11y"><h2>Accessibility</h2><ul><li>Container gets <code>role="region"</code> and <code>aria-roledescription="carousel"</code>; slides get <code>role="group"</code> with "n of total" labels; clones are hidden from assistive tech.</li><li>Left/right (up/down when vertical) keys work when the slider has focus; <code>globalKeyboard</code> extends this to the whole page.</li><li>Autoplay pauses on hover and focus, and the live region switches to <code>polite</code> when autoplay is off or paused.</li><li>Users with <code>prefers-reduced-motion: reduce</code> get no autoplay and instant transitions (disable with <code>respectReducedMotion: false</code>).</li><li>Translate all strings with the <code>labels</code> option.</li></ul></section>
@@ -276,26 +356,45 @@ const slider = new Mozert('.slider', { dots: true });`)}
 <script>new Mozert('.slider', { dots: true });</script>`)}
 <div class="callout warn">The CDN URLs work after the package has been published to npm. Until then, copy the files from <code>dist/</code>.</div>
 <h2>Which file?</h2>${table(['File', 'Use it for'], [['<code>mozert.min.js</code>', 'Default. Core and every module (effects, pagination types, free mode, zoom, virtual, and so on).'], ['<code>mozert.core.min.js</code>', 'Core features only; smallest download.'], ['<code>mozert.esm.mjs</code>', 'ES module for bundlers (<code>import</code> resolves to this automatically).'], ['<code>mozert.jquery.min.js</code>', 'Adds <code>$.fn.mozert</code>.']])}
-<h2>Frameworks</h2>${tabs([['React', `import { useEffect, useRef } from 'react';
-import Mozert from '${PKG}';
-import '${PKG}/css';
+<h2>Frameworks</h2><p>Official packages for React and Vue 3. They create the slider after the component mounts, destroy it before the framework removes anything, and rebuild it when slides are added, removed or reordered, or an option changes. Import the slider CSS once.</p>${tabs([['React', `npm install @mozert-studio/react ${PKG}
 
-export function Slider({ children, options }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const s = new Mozert(ref.current, options);
-    return () => s.destroy();
-  }, []);
-  return <div ref={ref}>{children}</div>;
-}`], ['Vue 3', `<script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import Mozert from '${PKG}';
+// root layout
 import '${PKG}/css';
-const el = ref(null); let s;
-onMounted(() => (s = new Mozert(el.value, { dots: true })));
-onBeforeUnmount(() => s && s.destroy());
+import '${PKG}/theme.css';
+
+import MozertSlider from '@mozert-studio/react';
+
+<MozertSlider slidesToShow={3} spaceBetween={16} dots thumbs lightbox onChange={(i) => console.log(i)}>
+  {products.map((p) => <div key={p.id}><img src={p.image} alt={p.name} /></div>)}
+</MozertSlider>
+
+// Every Mozert option works as a prop (or inside options={{ ... }}).
+// Each child renders one element. Give children a key.
+// onInit(slider), onChange(index, slider); a ref gives { slider, element }.`], ['Vue 3', `npm install @mozert-studio/vue ${PKG}
+
+// main.js
+import '${PKG}/css';
+import '${PKG}/theme.css';
+
+<script setup>
+import MozertSlider from '@mozert-studio/vue';
 </script>
-<template><div ref="el"><slot /></div></template>`], ['Shopify (Liquid)', `{{ 'mozert.min.css' | asset_url | stylesheet_tag }}
+
+<template>
+  <MozertSlider :slidesToShow="3" :spaceBetween="16" dots thumbs lightbox @change="(i) => console.log(i)">
+    <div v-for="p in products" :key="p.id"><img :src="p.image" :alt="p.name" /></div>
+  </MozertSlider>
+</template>
+
+<!-- Every Mozert option works as an attribute (camelCase) or inside :options="{ ... }".
+     Events: init, change, before-change. -->`], ['Next.js / Nuxt', `// Next.js (App Router): the file that uses the component starts with
+'use client';
+
+// Nuxt 3: render it on the client only
+// <ClientOnly><MozertSlider :slidesToShow="3">...</MozertSlider></ClientOnly>
+
+// Mozert touches the DOM, so it never runs during server rendering.
+// The packages only create the slider after mount (useEffect / onVnodeMounted).`], ['Shopify (Liquid)', `{{ 'mozert.min.css' | asset_url | stylesheet_tag }}
 <div class="product-slider">
   {% for image in product.images %}
     <div><img src="{{ image | image_url: width: 900 }}" alt="{{ image.alt | escape }}" loading="lazy"></div>
@@ -359,6 +458,14 @@ const slider = new Mozert('#catalog', {
   },
   slidesToShow: 4, spaceBetween: 16
 });`)}<p>Mozert creates 10,000 empty shells (cheap) and fills the few near the viewport. Combine with <code>data-lazy</code> for images and with <code>freeMode</code> for a smooth scrolling feel.</p>`],
+    ['react-vue-slider', 'How to add Mozert Slider to React, Next.js and Vue', 'Install the official package, import the CSS, and use it as a component.', `<h3>1. Install</h3>${code(`npm install @mozert-studio/react ${PKG}`)}<p>For Vue 3 use <code>@mozert-studio/vue</code> instead.</p><h3>2. Import the styles once</h3>${code(`import '${PKG}/css';
+import '${PKG}/theme.css';`)}<h3>3. Use it</h3>${code(`import MozertSlider from '@mozert-studio/react';
+
+<MozertSlider slidesToShow={3} spaceBetween={16} dots lightbox thumbs>
+  {products.map(p => <div key={p.id}><img src={p.image} alt={p.name} /></div>)}
+</MozertSlider>`)}<p>Every Mozert option works as a prop. Give each child a <code>key</code>; the slider rebuilds itself when slides are added, removed or reordered.</p><h3>Next.js</h3><p>Add <code>'use client'</code> as the first line of the file that uses the component. The slider only runs in the browser, so server rendering is safe.</p><h3>Vue 3 and Nuxt</h3>${code(`<MozertSlider :slidesToShow="3" dots @change="i => current = i">
+  <div v-for="p in products" :key="p.id">{{ p.name }}</div>
+</MozertSlider>`)}<p>In Nuxt wrap it in <code>&lt;ClientOnly&gt;</code>.</p><h3>Calling methods</h3><p>React: <code>ref.current.slider.next()</code>. Vue: <code>ref.value.slider().goTo(2)</code>. Or keep the instance from <code>onInit</code> / the <code>init</code> event.</p>`],
     ['shopify-magento', 'Using Mozert in Shopify and Magento themes', 'Plain script tags, no build step.', `<p>In Shopify, upload <code>mozert.min.js</code> and <code>mozert.min.css</code> to <em>assets</em>, include them with <code>asset_url</code> and initialise after <code>DOMContentLoaded</code>. In Magento 2 with Hyvä, initialise from an Alpine <code>x-init</code>; with Luma, register the file in <code>requirejs-config.js</code>. The installation page has copy-paste snippets for both.</p>`],
   ];
   add('blog', 'Blog and tutorials | Mozert Slider', 'Tutorials: hero sliders, accessible carousels, coverflow galleries, virtual slides and theme integrations.', `
@@ -369,12 +476,28 @@ ${posts.map(([id, t, sub, body]) => `<article class="post" id="${id}"><h2>${esc(
 // CHANGELOG
 add('changelog', 'Changelog | Mozert Slider', 'Version history of Mozert Slider.', `
 <h1>Changelog</h1><p class="lead">Mozert follows semantic versioning.</p>
-<section class="rel"><h3>${V} <span class="pill">first release</span></h3><p class="meta">2026-11-10</p><ul>
+<section class="rel"><h3>${V} <span class="pill">latest</span></h3><p class="meta">2026-11-10</p><ul>
+<li>Docs and examples for <code>prevArrow</code> / <code>nextArrow</code>, <code>appendArrows</code> / <code>appendDots</code>, <code>centerPadding</code> and <code>rtl</code>.</li>
+<li>Scroll-driven slider: <code>fill: true</code> makes the pinned slider as tall as the screen, plus <code>speed</code>, <code>offset</code> and <code>bottom</code> options.</li>
+<li>Fixed: dots moved out of the slider with <code>appendDots</code> now keep their theme styling.</li>
+<li>New: <code>magnifier</code> option. A button in the top right corner turns on hover zoom for the main picture, like a shop product page.</li>
+<li>New: <code>thumbs: { position: 'right' }</code> puts a vertical thumbnail strip beside the main picture (<code>'left'</code>, <code>'top'</code> and <code>'bottom'</code> work too).</li>
+<li>New: <code>thumbs</code> option. One option builds a thumbnail gallery that stays in sync, instead of two sliders with <code>asNavFor</code> and <code>focusOnSelect</code>.</li>
+<li>New: built-in lightbox, <code>lightbox: true</code>. Full-screen viewer with next/previous, zoom, swipe, keyboard and focus handling.</li>
+<li>New: <code>scrollDriven</code>. The slider sticks to the page and your scroll moves the slides.</li>
+<li>New: official <code>@mozert-studio/react</code> and <code>@mozert-studio/vue</code> packages.</li>
+<li>Fixed: thumbnail strips that show every thumbnail now still highlight and select correctly; the fullscreen button label.</li>
+<li>New: <code>effect: 'expand'</code>. The active card opens wide while the others stay narrow, smooth with drag, loop and autoplay. See the Expanding cards example.</li>
+<li>New: 3D carousel look for coverflow. <code>coverflowEffect.lift</code> raises the cards behind the active one and <code>fade</code> dims them, so you get a stacked, layered carousel. See the new 3D carousel example.</li>
+<li>New: step-by-step guide for adding Mozert Slider to React, Next.js and Vue.</li></ul></section>
+<section class="rel"><h3>1.1.0 <span class="pill">first release</span></h3><p class="meta">2026-11-10</p><ul>
 <li>Core: infinite loop, breakpoints, center mode, variable width, rows, vertical, RTL, fade, lazy loading, asNavFor + focusOnSelect, adaptive height, autoplay, accessibility, jQuery adapter, <code>labels</code> translations.</li>
 <li>Layout options: fractional <code>slidesToShow</code>, <code>spaceBetween</code>, <code>slideWidth</code>, <code>edgePadding</code>; responsive <code>settings: 'destroy'</code>.</li>
-<li>Dynamic slides: <code>add()</code>, <code>remove()</code>, <code>removeAll()</code>, <code>filter()</code> / <code>unfilter()</code>.</li>
+<li>Dynamic slides: <code>add()</code>, <code>remove()</code>, <code>removeAll()</code>, <code>filter()</code> / <code>unfilter()</code>; filtered-out and removed slides leave the page completely.</li>
 <li>Effects: coverflow, cube, flip, cards, creative.</li>
 <li>Modules: pagination types, scrollbar, free mode, mousewheel, global keyboard, parallax, zoom, virtual slides, hash navigation, marquee, video autoplay, fullscreen.</li>
+<li>Design: pagination and arrows aligned, vertical dots stay inside the slider, smoother coverflow transitions.</li>
+<li>Thumbnail sliders: with <code>asNavFor</code> + <code>focusOnSelect</code>, clicking any thumbnail opens that slide and highlights it.</li>
 <li>Autoplay: <code>autoplayReverse</code>, <code>stopOnLastSlide</code>, <code>disableOnInteraction</code>, <code>autoplayStart</code> / <code>autoplayStop</code> / <code>autoplayTimeLeft</code> events.</li>
 <li>Module API: <code>Mozert.use()</code>.</li>
 <li>Builds: UMD, ESM, minified JS/CSS, core-only bundle, TypeScript types.</li></ul></section>`);

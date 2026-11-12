@@ -1,4 +1,4 @@
-/*! Mozert 1.1.0 | core styles (required) | MIT */
+/*! Mozert 1.1.1 | core styles (required) | MIT */
 .mozert-slider {
   position: relative;
   display: block;
@@ -133,3 +133,61 @@ img.mozert-loaded {
 .mozert-zoomed { cursor: grab; }
 
 .mozert-bleed { overflow: visible; }
+
+/* ---- thumbs ---- */
+[data-mozert-thumbs]{margin-top:12px}
+[data-mozert-thumbs=top]{margin:0 0 12px}
+.mozert-gallery{display:flex;align-items:flex-start;gap:12px}
+.mozert-gallery>.mozert-slider{flex:1 1 0;min-width:0}
+.mozert-gallery>[data-mozert-thumbs]{flex:0 0 var(--mozert-thumbs-w,120px);width:var(--mozert-thumbs-w,120px);margin:0}
+.mozert-gallery-left{flex-direction:row-reverse}
+[data-mozert-thumbs=left] .mozert-thumb,[data-mozert-thumbs=right] .mozert-thumb{aspect-ratio:auto;height:var(--mozert-thumb-h,80px)}
+@media (max-width:600px){.mozert-gallery>[data-mozert-thumbs]{flex-basis:var(--mozert-thumbs-w,76px);width:var(--mozert-thumbs-w,76px)}}
+[data-mozert-thumbs] .mozert-slide{cursor:pointer;opacity:.55;transition:opacity .2s}
+[data-mozert-thumbs] .mozert-slide.mozert-current,[data-mozert-thumbs] .mozert-slide:hover{opacity:1}
+[data-mozert-thumbs] .mozert-thumb{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;border:2px solid transparent;box-sizing:border-box;user-select:none}
+[data-mozert-thumbs] .mozert-current .mozert-thumb{border-color:var(--mozert-accent,#3633f5)}
+.mozert-thumb-fill{display:grid;place-items:center;color:#fff;font:700 14px/1 system-ui,sans-serif}
+
+/* ---- lightbox ---- */
+.mozert-has-lightbox .mozert-slide{cursor:zoom-in}
+html.mozert-lb-open{overflow:hidden}
+.mozert-lb{position:fixed;inset:0;z-index:100000;background:rgba(8,11,20,.94);color:#fff;opacity:0;transition:opacity .18s ease;display:flex;flex-direction:column}
+.mozert-lb.mozert-lb-show{opacity:1}
+.mozert-lb-stage{flex:1;min-height:0;display:grid;place-items:center;padding:56px 64px 64px;overflow:hidden;touch-action:pan-y}
+.mozert-lb-img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;cursor:zoom-in;transition:transform .25s ease;user-select:none;animation:mozert-lb-in .25s ease}
+.mozert-lb-clone{cursor:zoom-in;transition:transform .25s ease}
+.mozert-lb-zoomed .mozert-lb-img,.mozert-lb-zoomed .mozert-lb-clone{cursor:zoom-out}
+.mozert-lb-clone{width:min(80vw,80vh,720px);aspect-ratio:1;border-radius:12px;overflow:hidden;animation:mozert-lb-in .25s ease}
+.mozert-lb-clone>*{width:100%;height:100%}
+@keyframes mozert-lb-in{from{opacity:0;transform:translateX(var(--lb-from,0)) scale(.98)}to{opacity:1;transform:none}}
+.mozert-lb-bar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:6px;padding:12px 14px}
+.mozert-lb-count{margin-right:auto;font:600 13px/1 ui-monospace,monospace;opacity:.8;letter-spacing:.06em}
+.mozert-lb button{appearance:none;border:0;background:rgba(255,255,255,.12);color:#fff;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;cursor:pointer;transition:background .15s}
+.mozert-lb button:hover:not(:disabled){background:rgba(255,255,255,.24)}
+.mozert-lb button:disabled{opacity:.3;cursor:default}
+.mozert-lb button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.mozert-lb-prev,.mozert-lb-next{position:absolute;top:50%;margin-top:-21px}
+.mozert-lb-prev{left:14px}.mozert-lb-next{right:14px}
+.mozert-lb-cap{position:absolute;left:0;right:0;bottom:16px;text-align:center;font:500 14px/1.4 system-ui,sans-serif;opacity:.85;padding:0 70px}
+.mozert-lb-cap:empty{display:none}
+@media(max-width:640px){.mozert-lb-stage{padding:56px 8px 56px}.mozert-lb-prev,.mozert-lb-next{top:auto;bottom:8px;margin:0}}
+@media(prefers-reduced-motion:reduce){.mozert-lb,.mozert-lb-img{transition:none;animation:none}}
+
+/* ---- scroll-driven ---- */
+.mozert-sd{position:relative}
+.mozert-sd-stick{position:sticky;z-index:1}
+
+/* ---- magnifier ---- */
+.mozert-mag-btn{position:absolute;top:10px;right:10px;z-index:5;width:36px;height:36px;border:0;border-radius:50%;background:rgba(15,22,38,.55);color:#fff;cursor:pointer;display:grid;place-items:center;transition:background .2s,transform .2s}
+.mozert-mag-btn:hover{transform:scale(1.06)}
+.mozert-mag-btn.mozert-on{background:var(--mozert-accent,#3633f5)}
+.mozert-fullscreen-btn~.mozert-mag-btn,.mozert-mag-btn~.mozert-fullscreen-btn{right:54px}
+.mozert-mag-on .mozert-list{cursor:zoom-in}
+.mozert-mag-host{overflow:hidden}
+.mozert-mag-node{transition:transform .18s ease-out;will-change:transform}
+@media(prefers-reduced-motion:reduce){.mozert-mag-node{transition:none}}
+
+/* scrollDriven fill: the pinned slider is as tall as the screen */
+.mozert-sd-fill .mozert-list,.mozert-sd-fill .mozert-track,.mozert-sd-fill .mozert-slide{height:100%}
+.mozert-sd-fill .mozert-slide>*{height:100%}

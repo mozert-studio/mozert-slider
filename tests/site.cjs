@@ -31,7 +31,7 @@ const audit = `(() => {
     });
     m.dom.forEach((w, i) => {
       const c = w.firstElementChild;
-      if (c && c.classList.contains('sc') && c.offsetWidth > w.offsetWidth + 1) out.push(el.id + ': card wider than slide #' + i + ' (' + c.offsetWidth + '>' + w.offsetWidth + ')');
+      if (c && el.id !== 'd-expand' && c.classList.contains('sc') && c.offsetWidth > w.offsetWidth + 1) out.push(el.id + ': card wider than slide #' + i + ' (' + c.offsetWidth + '>' + w.offsetWidth + ')');
     });
     
   });
@@ -117,6 +117,34 @@ const audit = `(() => {
     });
     th.slice(0, 6).forEach(([i, c]) => ok(i === c, vp.width + ' thumbnail click ' + i + ' -> main ' + c));
     ok(th[6][1] >= 2 && th[6][2].split(',').every((x) => x === '5'), vp.width + ' main at 5 moves thumbnails and highlights #6: ' + th[6]);
+
+    // 3D carousel: cards behind the active one are raised and dimmed
+    const d3 = await pg.evaluate(async () => {
+      const m = Mozert.get(document.getElementById('d-3d')); m.goTo(2, true); await new Promise((r) => setTimeout(r, 200));
+      const tY = (e) => { const t = getComputedStyle(e).transform; return t === 'none' ? 0 : new DOMMatrix(t).m42; };
+      const cur = m.dom.filter((e) => e.classList.contains('mozert-current'))[0] || m.dom[m.current + m.cloneCount];
+      const i = m.dom.indexOf(cur);
+      return { mid: tY(cur), near: tY(m.dom[i + 1]), far: tY(m.dom[i + 2]), opFar: +getComputedStyle(m.dom[i + 2]).opacity };
+    });
+    ok(d3.near < d3.mid - 20 && d3.far < d3.near && d3.opFar < 1, vp.width + ' 3D carousel lift/fade: ' + JSON.stringify(d3));
+
+    // Expanding cards: active card is wider, neighbours never overlap or leave gaps, also after many moves and across the loop seam
+    const ex = await pg.evaluate(async () => {
+      const m = Mozert.get(document.getElementById('d-expand')); const out = { bad: [], wide: true };
+      const gap = m.s.spaceBetween;
+      for (let step = 0; step < 16; step++) {
+        m.next(); await new Promise((r) => setTimeout(r, 800));
+        const cards = m.dom.map((e) => e.firstElementChild.getBoundingClientRect()).filter((r, i) => m.dom[i].offsetParent);
+        const cur = m.dom.filter((e) => e.classList.contains('mozert-current'))[0];
+        const cw = cur.firstElementChild.getBoundingClientRect().width;
+        const others = m.dom.filter((e) => e !== cur && !e.classList.contains('mozert-cloned')).map((e) => e.firstElementChild.getBoundingClientRect().width);
+        if (!(cw > Math.max.apply(null, others) * 1.5)) out.wide = false;
+        const sorted = cards.sort((a, b) => a.left - b.left);
+        for (let i = 1; i < sorted.length; i++) { const d = sorted[i].left - sorted[i - 1].right; if (Math.abs(d - gap) > 3) { out.bad.push(step + ':' + d.toFixed(1)); break; } }
+      }
+      return out;
+    });
+    ok(ex.wide && ex.bad.length === 0, vp.width + ' expand cards: ' + JSON.stringify(ex));
 
     const a3 = await pg.evaluate(audit);
     ok(a3.length === 0, vp.width + ' after interactions: ' + JSON.stringify(a3));

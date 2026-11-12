@@ -1,4 +1,4 @@
-/*! Mozert 1.1.0 | optional theme | MIT
+/*! Mozert 1.1.1 | optional theme | MIT
  * Customize with CSS variables on .mozert-slider or any ancestor. */
 .mozert-slider {
   --mozert-accent: #1f6feb;
@@ -19,15 +19,15 @@
   top: var(--mozert-arrow-y, 50%);
   display: grid;
   place-items: center;
-  width: var(--mozert-arrow-size);
-  height: var(--mozert-arrow-size);
-  margin: calc(var(--mozert-arrow-size) / -2) 0 0;
+  width: var(--mozert-arrow-size, 44px);
+  height: var(--mozert-arrow-size, 44px);
+  margin: calc(var(--mozert-arrow-size, 44px) / -2) 0 0;
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: var(--mozert-arrow-bg);
-  color: var(--mozert-arrow-fg);
-  box-shadow: var(--mozert-arrow-shadow);
+  background: var(--mozert-arrow-bg, rgba(255, 255, 255, 0.92));
+  color: var(--mozert-arrow-fg, #14161a);
+  box-shadow: var(--mozert-arrow-shadow, 0 2px 10px rgba(10, 20, 40, 0.18));
   font-size: 0;
   line-height: 0;
   cursor: pointer;
@@ -80,7 +80,7 @@
 .mozert-prev:focus-visible,
 .mozert-next:focus-visible,
 .mozert-dots button:focus-visible {
-  outline: 2px solid var(--mozert-accent);
+  outline: 2px solid var(--mozert-accent, #1f6feb);
   outline-offset: 2px;
 }
 .mozert-prev.mozert-disabled,
@@ -95,7 +95,7 @@
   left: 50%;
   right: auto;
   top: auto;
-  margin: 0 0 0 calc(var(--mozert-arrow-size) / -2);
+  margin: 0 0 0 calc(var(--mozert-arrow-size, 44px) / -2);
 }
 .mozert-vertical .mozert-prev {
   top: 10px;
@@ -126,19 +126,19 @@
 }
 .mozert-dots button {
   display: block;
-  width: var(--mozert-dot-size);
-  height: var(--mozert-dot-size);
+  width: var(--mozert-dot-size, 9px);
+  height: var(--mozert-dot-size, 9px);
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: var(--mozert-dot-color);
+  background: var(--mozert-dot-color, rgba(20, 22, 26, 0.28));
   font-size: 0;
   cursor: pointer;
   transition: width 0.25s ease, height 0.25s ease, background-color 0.25s ease;
 }
 .mozert-dots li.mozert-active button {
-  width: calc(var(--mozert-dot-size) * 2.4);
-  background: var(--mozert-dot-active);
+  width: calc(var(--mozert-dot-size, 9px) * 2.4);
+  background: var(--mozert-dot-active, var(--mozert-accent, #1f6feb));
 }
 .mozert-vertical .mozert-dots {
   position: absolute;
@@ -156,8 +156,8 @@
   transform: translateY(-50%);
 }
 .mozert-vertical .mozert-dots li.mozert-active button {
-  width: var(--mozert-dot-size);
-  height: calc(var(--mozert-dot-size) * 2.4);
+  width: var(--mozert-dot-size, 9px);
+  height: calc(var(--mozert-dot-size, 9px) * 2.4);
 }
 
 @media (prefers-reduced-motion: reduce) {
