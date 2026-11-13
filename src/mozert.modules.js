@@ -861,6 +861,7 @@
   });
 
   /* -------------------------------------------------------------- bleed */
+  let bleedCount = 0, bleedPrev = ['', ''], bleedOn = [false, false];
   // Slides start aligned with the container, overflow towards the viewport edge (right, left or both) and the last slide ends aligned with the container.
   Mozert.use({
     name: 'bleed',
@@ -872,13 +873,16 @@
       const list = sl.list;
       list.style.overflow = 'visible';
       sl.el.classList.add('mozert-bleed');
-      // Overflowing slides must not create a horizontal page scrollbar: clip the page on the x axis (restored on destroy).
-      const body = document.body;
-      const prevClip = body.style.overflowX;
-      let clipped = false;
-      if (getComputedStyle(body).overflowX === 'visible') {
-        body.style.overflowX = 'clip';
-        clipped = true;
+      // Overflowing slides must not make the page scroll sideways. <html> and <body> are both clipped on the x axis:
+      // with only <body> set, the browser hands its overflow to the viewport and the page still pans sideways on phones.
+      // Restored when the last bleed slider is destroyed.
+      const root = document.documentElement, body = document.body;
+      if (bleedCount++ === 0) {
+        const v = window.CSS && CSS.supports && CSS.supports('overflow-x', 'clip') ? 'clip' : 'hidden';
+        bleedPrev = [root.style.overflowX, body.style.overflowX];
+        bleedOn = [getComputedStyle(root).overflowX === 'visible', getComputedStyle(body).overflowX === 'visible'];
+        if (bleedOn[0]) root.style.overflowX = v;
+        if (bleedOn[1]) body.style.overflowX = v;
       }
       const update = () => {
         const r = sl.el.getBoundingClientRect();
@@ -896,7 +900,10 @@
           clearTimeout(t);
           list.style.overflow = '';
           list.style.clipPath = '';
-          if (clipped) body.style.overflowX = prevClip;
+          if (--bleedCount === 0) {
+            if (bleedOn[0]) root.style.overflowX = bleedPrev[0];
+            if (bleedOn[1]) body.style.overflowX = bleedPrev[1];
+          }
           sl.el.classList.remove('mozert-bleed');
         },
       };

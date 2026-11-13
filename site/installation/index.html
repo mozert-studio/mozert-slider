@@ -22,9 +22,9 @@ const slider = new Mozert('.slider', { dots: true });</code></pre>
 &lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mozert-studio/mozert-slider@1/dist/mozert-theme.min.css"&gt;
 &lt;script src="https://cdn.jsdelivr.net/npm/@mozert-studio/mozert-slider@1/dist/mozert.min.js"&gt;&lt;/script&gt;
 &lt;script&gt;new Mozert('.slider', { dots: true });&lt;/script&gt;</code></pre>
-<div class="callout warn">The CDN URLs work after the package has been published to npm. Until then, copy the files from <code>dist/</code>.</div>
+<div class="callout">The <code>@1</code> in the URL always serves the newest 1.x release. Pin an exact version (for example <code>@1.1.1</code>) if you want a file that never changes. The files are also in <code>dist/</code> if you would rather host them yourself.</div>
 <h2>Which file?</h2><div class="tw"><table><thead><tr><th>File</th><th>Use it for</th></tr></thead><tbody><tr><td><code>mozert.min.js</code></td><td>Default. Core and every module (effects, pagination types, free mode, zoom, virtual, and so on).</td></tr><tr><td><code>mozert.core.min.js</code></td><td>Core features only; smallest download.</td></tr><tr><td><code>mozert.esm.mjs</code></td><td>ES module for bundlers (<code>import</code> resolves to this automatically).</td></tr><tr><td><code>mozert.jquery.min.js</code></td><td>Adds <code>$.fn.mozert</code>.</td></tr></tbody></table></div>
-<h2>Frameworks</h2><p>Official packages for React and Vue 3. They create the slider after the component mounts, destroy it before the framework removes anything, and rebuild it when slides are added, removed or reordered, or an option changes. Import the slider CSS once.</p><div class="tabs"><div role="tablist"><button role="tab" aria-selected="true" id="teucm9-0" aria-controls="teucm9-p0" type="button">React</button><button role="tab" aria-selected="false" id="teucm9-1" aria-controls="teucm9-p1" type="button">Vue 3</button><button role="tab" aria-selected="false" id="teucm9-2" aria-controls="teucm9-p2" type="button">Next.js / Nuxt</button><button role="tab" aria-selected="false" id="teucm9-3" aria-controls="teucm9-p3" type="button">Shopify (Liquid)</button><button role="tab" aria-selected="false" id="teucm9-4" aria-controls="teucm9-p4" type="button">Magento 2 / Hyvä</button></div><div role="tabpanel" id="teucm9-p0" aria-labelledby="teucm9-0" ><pre data-copy><code>npm install @mozert-studio/react @mozert-studio/mozert-slider
+<h2>Frameworks</h2><p>Official packages for React and Vue 3. They create the slider after the component mounts, destroy it before the framework removes anything, and rebuild it when slides are added, removed or reordered, or an option changes. Import the slider CSS once.</p><div class="tabs"><div role="tablist"><button role="tab" aria-selected="true" id="tvujp5-0" aria-controls="tvujp5-p0" type="button">React</button><button role="tab" aria-selected="false" id="tvujp5-1" aria-controls="tvujp5-p1" type="button">Vue 3</button><button role="tab" aria-selected="false" id="tvujp5-2" aria-controls="tvujp5-p2" type="button">Next.js / Nuxt</button><button role="tab" aria-selected="false" id="tvujp5-3" aria-controls="tvujp5-p3" type="button">Shopify (Liquid)</button><button role="tab" aria-selected="false" id="tvujp5-4" aria-controls="tvujp5-p4" type="button">Magento 2 / Hyvä</button></div><div role="tabpanel" id="tvujp5-p0" aria-labelledby="tvujp5-0" ><pre data-copy><code>npm install @mozert-studio/react @mozert-studio/mozert-slider
 
 // root layout
 import '@mozert-studio/mozert-slider/css';
@@ -38,7 +38,7 @@ import MozertSlider from '@mozert-studio/react';
 
 // Every Mozert option works as a prop (or inside options={{ ... }}).
 // Each child renders one element. Give children a key.
-// onInit(slider), onChange(index, slider); a ref gives { slider, element }.</code></pre></div><div role="tabpanel" id="teucm9-p1" aria-labelledby="teucm9-1" hidden><pre data-copy><code>npm install @mozert-studio/vue @mozert-studio/mozert-slider
+// onInit(slider), onChange(index, slider); a ref gives { slider, element }.</code></pre></div><div role="tabpanel" id="tvujp5-p1" aria-labelledby="tvujp5-1" hidden><pre data-copy><code>npm install @mozert-studio/vue @mozert-studio/mozert-slider
 
 // main.js
 import '@mozert-studio/mozert-slider/css';
@@ -55,21 +55,21 @@ import MozertSlider from '@mozert-studio/vue';
 &lt;/template&gt;
 
 &lt;!-- Every Mozert option works as an attribute (camelCase) or inside :options="{ ... }".
-     Events: init, change, before-change. --&gt;</code></pre></div><div role="tabpanel" id="teucm9-p2" aria-labelledby="teucm9-2" hidden><pre data-copy><code>// Next.js (App Router): the file that uses the component starts with
+     Events: init, change, before-change. --&gt;</code></pre></div><div role="tabpanel" id="tvujp5-p2" aria-labelledby="tvujp5-2" hidden><pre data-copy><code>// Next.js (App Router): the file that uses the component starts with
 'use client';
 
 // Nuxt 3: render it on the client only
 // &lt;ClientOnly&gt;&lt;MozertSlider :slidesToShow="3"&gt;...&lt;/MozertSlider&gt;&lt;/ClientOnly&gt;
 
 // Mozert touches the DOM, so it never runs during server rendering.
-// The packages only create the slider after mount (useEffect / onVnodeMounted).</code></pre></div><div role="tabpanel" id="teucm9-p3" aria-labelledby="teucm9-3" hidden><pre data-copy><code>{{ 'mozert.min.css' | asset_url | stylesheet_tag }}
+// The packages only create the slider after mount (useEffect / onVnodeMounted).</code></pre></div><div role="tabpanel" id="tvujp5-p3" aria-labelledby="tvujp5-3" hidden><pre data-copy><code>{{ 'mozert.min.css' | asset_url | stylesheet_tag }}
 &lt;div class="product-slider"&gt;
   {% for image in product.images %}
     &lt;div&gt;&lt;img src="{{ image | image_url: width: 900 }}" alt="{{ image.alt | escape }}" loading="lazy"&gt;&lt;/div&gt;
   {% endfor %}
 &lt;/div&gt;
 &lt;script src="{{ 'mozert.min.js' | asset_url }}" defer&gt;&lt;/script&gt;
-&lt;script&gt;document.addEventListener('DOMContentLoaded', function(){ new Mozert('.product-slider', { dots: true }); });&lt;/script&gt;</code></pre></div><div role="tabpanel" id="teucm9-p4" aria-labelledby="teucm9-4" hidden><pre data-copy><code>&lt;!-- Hyvä (Alpine) --&gt;
+&lt;script&gt;document.addEventListener('DOMContentLoaded', function(){ new Mozert('.product-slider', { dots: true }); });&lt;/script&gt;</code></pre></div><div role="tabpanel" id="tvujp5-p4" aria-labelledby="tvujp5-4" hidden><pre data-copy><code>&lt;!-- Hyvä (Alpine) --&gt;
 &lt;div x-data x-init="new Mozert($refs.s, { slidesToShow: 4, spaceBetween: 16 })"&gt;
   &lt;div x-ref="s"&gt;&lt;?php foreach ($items as $item): ?&gt;&lt;div&gt;&lt;?= $item ?&gt;&lt;/div&gt;&lt;?php endforeach ?&gt;&lt;/div&gt;
 &lt;/div&gt;
