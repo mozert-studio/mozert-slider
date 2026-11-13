@@ -33,5 +33,5 @@ ok(!sizes.includes('18.0') && !sizes.includes('18'), 'no stale 18 KB claim anywh
 ok(R('site/changelog/index.html').indexOf('v' + V) !== -1 || R('site/changelog/index.html').includes(V), 'changelog lists ' + V);
 const rows = ['Chrome', 'Firefox', 'Safari', 'Samsung', 'Internet Explorer'];
 ok(rows.every((r) => readme.includes(r) && inst.includes(r)), 'README and website list the same browsers');
-ok(!/after the package is published/i.test(all), 'no "after the package is published" leftover');
+ok(!/after the package (is|has been) published|until then, copy the files/i.test(all), 'no stale "after the package is published" note');
 console.log(fail ? 'FAILED' : 'consistency OK'); process.exit(fail ? 1 : 0);

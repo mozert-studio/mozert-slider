@@ -33,4 +33,26 @@
       });
     });
   });
+
+  // examples: category tabs filter the demos and the chip list
+  var cats = document.getElementById('cats');
+  if (cats) {
+    var items = document.querySelectorAll('article.demo[data-cat], .chips a[data-cat]');
+    var show = function (k, quiet) {
+      cats.querySelectorAll('button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-cat') === k); });
+      items.forEach(function (el) { el.hidden = !(k === 'all' || el.getAttribute('data-cat') === k); });
+      if (!quiet) { try { window.dispatchEvent(new Event('resize')); } catch (e) {} }
+    };
+    cats.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      show(b.getAttribute('data-cat'));
+      var first = document.querySelector('.chips'); if (first) first.scrollIntoView({ block: 'nearest' });
+    });
+    var openHash = function () {
+      var id = location.hash.slice(1); var t = id && document.getElementById(id);
+      if (t && t.hidden) show('all');
+      if (t) setTimeout(function () { t.scrollIntoView(); }, 0);
+    };
+    window.addEventListener('hashchange', openHash); openHash();
+  }
 })();

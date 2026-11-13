@@ -137,4 +137,30 @@ nav.main{flex-wrap:nowrap;white-space:nowrap}
 html{overflow-x:clip}
 /* phones: left/right galleries collapse to a bottom strip, so the two extra variants would look identical to the first */
 .mnote{display:none}
-@media(max-width:640px){#d-thumbs2-box,#d-product-box{display:none}.mnote{display:block}}
+@media(max-width:640px){#d-thumbs2-box,#d-product-box,.chips a[href='#d-thumbs2-box'],.chips a[href='#d-product-box']{display:none}.mnote{display:block}}
+
+/* sub-page headings: room under the sticky header */
+main>h1:first-child,.wrap>main>h1:first-child{margin-top:clamp(28px,5vw,56px)}
+/* examples: category tabs + chips */
+.cats{position:sticky;top:60px;z-index:6;display:flex;gap:6px;flex-wrap:wrap;padding:10px 0;margin:8px 0 4px;background:var(--bg)}
+.cats button{font:600 14px var(--body);border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:7px 14px;border-radius:999px;cursor:pointer}
+.cats button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.cats button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.chips a{font-size:14px;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:4px 10px}
+.chips a:hover{color:var(--accent);border-color:var(--accent)}
+[data-cat][hidden]{display:none!important}
+@media(max-width:640px){.cats{position:static;gap:6px}.cats button{padding:6px 12px;font-size:13.5px}}
+/* features: cards */
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px;margin:28px 0}
+.fcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto 1fr auto;column-gap:12px;align-items:center;min-width:0}
+.fcard h2{margin:0;font-size:20px;min-width:0}
+.fcard ul{grid-column:1/-1;align-self:start;margin:14px 0;padding-left:18px}.fcard li{margin:3px 0}
+.fic{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--tint);color:var(--accent)}
+.fcard .more{grid-column:1/-1;justify-self:start;font-weight:600;font-size:14px;color:var(--accent);text-decoration:none}.fcard .more:hover{text-decoration:underline}
+/* blog: long code lines wrap instead of hiding off-screen */
+.post pre{white-space:pre-wrap;overflow-wrap:anywhere}
+/* bleed demo: the slides run off the right edge of the screen, but the clipping happens right here (at the screen edge),
+   so the page never gets wider than the screen, even in browsers without overflow:clip */
+#d-bleed-box .stage{overflow:hidden;margin-right:calc(50% - 50vw);padding-bottom:14px}
+@supports (overflow:clip){#d-bleed-box .stage{overflow:clip}}
