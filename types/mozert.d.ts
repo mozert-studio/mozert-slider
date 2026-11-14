@@ -32,6 +32,7 @@ export interface MozertOptions {
   fullscreen?: boolean;
   thumbs?: boolean | string | Element | { el?: string | Element; count?: number; position?: 'bottom' | 'top' | 'left' | 'right'; breakpoint?: number; options?: MozertOptions };
   lightbox?: boolean | { zoom?: boolean; loop?: boolean; maxZoom?: number };
+  reel?: boolean | { play?: 'click' | 'active'; sound?: boolean; repeat?: boolean; next?: boolean; controls?: boolean };
   magnifier?: boolean | { zoom?: number; button?: boolean; active?: boolean };
   scrollDriven?: boolean | { step?: number; top?: number | 'center'; offset?: number; speed?: number; fill?: boolean; bottom?: number; maxHeight?: number };
   bleed?: boolean | 'left' | 'right';
@@ -123,6 +124,8 @@ export interface MozertState {
 export default class Mozert {
   /** Present when the lightbox option is on. */
   lightbox?: { open(index: number): void; close(): void; readonly isOpen: boolean };
+  /** Present when reel (video slides) is on. */
+  reel?: { play(index?: number): void; pause(): void; isPlaying(): boolean };
   /** Present when magnifier is on. */
   magnifier?: { enable(): void; disable(): void; toggle(): void; isOn(): boolean };
   /** Present when scrollDriven is on. */

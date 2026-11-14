@@ -198,3 +198,33 @@ html.mozert-lb-open{overflow:hidden}
 .mozert-pre{display:flex;overflow:hidden;gap:var(--mozert-pre-gap,0);padding-inline:var(--mozert-pre-pad,0);min-height:var(--mozert-pre-h,0)}
 .mozert-pre>*{flex:0 0 var(--mozert-pre-w,100%);min-width:0}
 @media(max-width:640px){.mozert-pre{padding-inline:var(--mozert-pre-pad-sm,var(--mozert-pre-pad,0));min-height:var(--mozert-pre-h-sm,var(--mozert-pre-h,0))}.mozert-pre>*{flex-basis:var(--mozert-pre-w-sm,var(--mozert-pre-w,100%))}}
+
+/* ---- reel: video slides (play button, inline player, thumbnail badge, lightbox video) ---- */
+.mozert-has-video { position: relative; }
+.mozert-has-video video,
+.mozert-vposter { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mozert-vposter { position: absolute; inset: 0; }
+.mozert-vplay {
+  position: absolute; inset: 0; margin: auto; z-index: 3;
+  width: 64px; height: 64px; border: 0; border-radius: 50%; padding: 0;
+  display: grid; place-items: center; cursor: pointer;
+  color: #fff; background: rgba(15, 22, 38, 0.62);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.28);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.mozert-vplay svg { margin-left: 3px; }
+.mozert-vplay:hover { transform: scale(1.08); background: rgba(15, 22, 38, 0.8); }
+.mozert-vplay:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.mozert-vplaying .mozert-vplay { display: none; }
+.mozert-vid, .mozert-vframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; z-index: 2; }
+.mozert-vid { object-fit: cover; }
+.mozert-thumb-video { position: relative; }
+.mozert-thumb-video::after {
+  content: ''; position: absolute; inset: 0; margin: auto; width: 26px; height: 26px; border-radius: 50%; pointer-events: none;
+  background: rgba(15, 22, 38, 0.62) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Cpath d='M9.5 7v10l8-5z'/%3E%3C/svg%3E") center / 70% no-repeat;
+}
+.mozert-lb-vid, .mozert-lb-frame { width: min(92vw, 1100px); height: min(80vh, 62vw); max-height: 80vh; border: 0; background: #000; border-radius: 10px; }
+.mozert-lb-isvideo .mozert-lb-zoom { display: none; }
+@media (max-width: 640px) {
+  .mozert-vplay { width: 54px; height: 54px; }
+}
