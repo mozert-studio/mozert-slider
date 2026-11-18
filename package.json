@@ -1,6 +1,6 @@
 {
   "name": "@mozert-studio/mozert-slider",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Mozert Slider: a lightweight, dependency-free JavaScript slider and carousel plugin for React, Vue, jQuery and plain HTML. Touch, responsive, accessible, with thumbnail gallery, lightbox, hover magnifier, scroll-driven mode, 3D coverflow, parallax and zoom.",
   "keywords": [
     "mozert",
@@ -107,11 +107,11 @@
     "start": "node scripts/dev.mjs",
     "build": "node scripts/build.mjs",
     "test:all": "node scripts/test-all.mjs",
-    "test": "node tests/run.cjs dist/mozert.min.js && node tests/extra.cjs dist/mozert.min.js && node tests/labels.cjs dist/mozert.min.js && node tests/modules.cjs dist/mozert.min.js && node tests/features.cjs dist/mozert.min.js && node tests/jquery.cjs && node tests/packages.cjs && node tests/responsive.cjs && node tests/site.cjs && node tests/preinit.cjs && node tests/consistency.cjs && node tests/sitepolish.cjs && node tests/noscroll.cjs && node tests/bleed.cjs",
+    "test": "node tests/run.cjs dist/mozert.min.js && node tests/extra.cjs dist/mozert.min.js && node tests/labels.cjs dist/mozert.min.js && node tests/modules.cjs dist/mozert.min.js && node tests/features.cjs dist/mozert.min.js && node tests/jquery.cjs && node tests/packages.cjs && node tests/responsive.cjs && node tests/site.cjs && node tests/loopclick.cjs dist/mozert.min.js && node tests/preinit.cjs && node tests/consistency.cjs && node tests/reel.cjs dist/mozert.min.js && node tests/sitepolish.cjs && node tests/noscroll.cjs && node tests/bleed.cjs",
     "prepublishOnly": "npm run build",
     "site": "node scripts/site.mjs"
   },
-  "homepage": "https://mozert-slider.netlify.app/",
+  "homepage": "https://mozert-slider.vercel.app/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mozert-studio/mozert-slider.git"

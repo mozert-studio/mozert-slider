@@ -1,5 +1,5 @@
 /*!
- * Mozert 1.1.1
+ * Mozert 1.1.2
  * A dependency-free, responsive, touch-friendly carousel / slider.
  * MIT License
  */
@@ -10,7 +10,7 @@
 }(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
   //#region core
-const VERSION = '1.1.1';
+const VERSION = '1.1.2';
 
 const DEFAULTS = {
   accessibility: true,
@@ -76,7 +76,7 @@ const DEFAULTS = {
   on: null,
 };
 
-const LABELS = { slide: 'Slide {n} of {total}', prev: 'Previous slide', next: 'Next slide', goTo: 'Go to slide {n}', fullscreen: 'Toggle fullscreen', close: 'Close', zoom: 'Zoom', lightbox: 'Image viewer', imageOf: 'Image {n} of {total}', magnifier: 'Magnifier' };
+const LABELS = { slide: 'Slide {n} of {total}', prev: 'Previous slide', next: 'Next slide', goTo: 'Go to slide {n}', fullscreen: 'Toggle fullscreen', close: 'Close', zoom: 'Zoom', lightbox: 'Image viewer', imageOf: 'Image {n} of {total}', magnifier: 'Magnifier', playVideo: 'Play video' };
 const DEFAULT_PREV = '<button type="button" class="mozert-prev" aria-label="Previous slide">Previous</button>';
 const DEFAULT_NEXT = '<button type="button" class="mozert-next" aria-label="Next slide">Next</button>';
 const FOCUSABLE = 'a[href],button,input,select,textarea,[tabindex],[contenteditable="true"]';
@@ -1354,7 +1354,12 @@ class Mozert {
           if (slide && this.track.contains(slide)) {
             const i = parseInt(slide.getAttribute('data-mozert-index'), 10);
             if (!isNaN(i)) {
-              if (this.canNav) this.goTo(i);
+              if (this.canNav) {
+                // loop: a copy of the slide at the end/start of the strip is the short way round, not the whole strip backwards
+                const k = s.infinite && !s.stacked ? this.dom.indexOf(slide) : -1;
+                if (k >= 0) this._slideTo(k - this.cloneCount, { animate: true });
+                else this.goTo(i);
+              }
               else {
                 // Nothing to scroll: just highlight the clicked slide and tell the partner.
                 this._sel = i;
