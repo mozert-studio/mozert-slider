@@ -1,10 +1,10 @@
 /*!
- * Mozert 1.1.1
+ * Mozert 1.1.2
  * A dependency-free, responsive, touch-friendly carousel / slider.
  * MIT License
  */
 const Mozert = (function () {
-const VERSION = '1.1.1';
+const VERSION = '1.1.2';
 
 const DEFAULTS = {
   accessibility: true,
@@ -1348,7 +1348,12 @@ class Mozert {
           if (slide && this.track.contains(slide)) {
             const i = parseInt(slide.getAttribute('data-mozert-index'), 10);
             if (!isNaN(i)) {
-              if (this.canNav) this.goTo(i);
+              if (this.canNav) {
+                // loop: a copy of the slide at the end/start of the strip is the short way round, not the whole strip backwards
+                const k = s.infinite && !s.stacked ? this.dom.indexOf(slide) : -1;
+                if (k >= 0) this._slideTo(k - this.cloneCount, { animate: true });
+                else this.goTo(i);
+              }
               else {
                 // Nothing to scroll: just highlight the clicked slide and tell the partner.
                 this._sel = i;
@@ -1912,7 +1917,8 @@ Mozert._bridge = null;
         destroy() {
           list.style.perspective = '';
           sl.track.style.transformStyle = '';
-          list.style.overflow = '';
+          list.style.opacity = list.style.transition = '';
+          list.style.overflow = list.style.paddingTop = list.style.paddingBottom = '';
           sl.el.classList.remove('mozert-fx-' + fx);
           slides().forEach((e) => {
             if (fx === 'expand' && e.firstElementChild) e.firstElementChild.style.width = e.firstElementChild.style.marginLeft = e.firstElementChild.style.transition = e.firstElementChild.style.maxWidth = '';
@@ -1939,6 +1945,7 @@ Mozert._bridge = null;
         items.push(els);
       });
       const bg = sl.el.querySelector('[data-parallax-bg]');
+
       const apply = (pv, animate, speed) => {
         const W = sl.slideSize || sl.list.clientWidth;
         slides.forEach((slide, k) => {

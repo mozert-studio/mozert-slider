@@ -167,3 +167,4 @@ main>h1:first-child,.wrap>main>h1:first-child{margin-top:clamp(28px,5vw,56px)}
 /* video gallery demo: poster fills the slide like the numbered panels */
 .reel-poster{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r)}
 #d-reel-box .mozert-has-video{border-radius:var(--r);overflow:hidden}
+

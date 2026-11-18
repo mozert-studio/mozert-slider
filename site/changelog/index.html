@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Changelog | Mozert Slider</title><meta name="description" content="Version history of Mozert Slider.">
-<link rel="canonical" href="https://mozert-slider.netlify.app/changelog/"><link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png"><link rel="apple-touch-icon" href="../assets/apple-touch-icon.png"><meta name="theme-color" content="#3633f5">
-<meta property="og:type" content="website"><meta property="og:site_name" content="Mozert Slider"><meta property="og:title" content="Changelog | Mozert Slider"><meta property="og:description" content="Version history of Mozert Slider."><meta property="og:url" content="https://mozert-slider.netlify.app/changelog/"><meta property="og:image" content="https://mozert-slider.netlify.app/assets/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Changelog | Mozert Slider"><meta name="twitter:description" content="Version history of Mozert Slider."><meta name="twitter:image" content="https://mozert-slider.netlify.app/assets/og.png">
+<link rel="canonical" href="https://mozert-slider.vercel.app/changelog/"><link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png"><link rel="apple-touch-icon" href="../assets/apple-touch-icon.png"><meta name="theme-color" content="#3633f5">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Mozert Slider"><meta property="og:title" content="Changelog | Mozert Slider"><meta property="og:description" content="Version history of Mozert Slider."><meta property="og:url" content="https://mozert-slider.vercel.app/changelog/"><meta property="og:image" content="https://mozert-slider.vercel.app/assets/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Changelog | Mozert Slider"><meta name="twitter:description" content="Version history of Mozert Slider."><meta name="twitter:image" content="https://mozert-slider.vercel.app/assets/og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;700&display=swap">
 <link rel="stylesheet" href="../assets/mozert.min.css"><link rel="stylesheet" href="../assets/mozert-theme.min.css"><link rel="stylesheet" href="../assets/site.css">
 </head><body>
@@ -13,7 +13,13 @@
 <details class="menu"><summary aria-label="Menu"><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span></summary><nav aria-label="Primary mobile"><a href="../index.html">Home</a><a href="../features/index.html">Features</a><a href="../examples/index.html">Examples</a><a href="../docs/index.html">Docs</a><a href="../installation/index.html">Install</a><a href="../api/index.html">API</a><a href="../blog/index.html">Blog</a><a href="../changelog/index.html" aria-current="page">Changelog</a></nav></details></div></header>
 <main class="wrap">
 <h1>Changelog</h1><p class="lead">Mozert follows semantic versioning.</p>
-<section class="rel"><h3>1.1.1 <span class="pill">latest</span></h3><p class="meta">2026-11-12</p><ul>
+<section class="rel"><h3>1.1.2 <span class="pill">latest</span></h3><p class="meta">2026-11-18</p><ul>
+<li>New: <code>reel: true</code>, a video gallery. Slides with <code>data-video</code> or <code>data-embed</code> become video slides: play inside the slide, stop when you leave it. Options: <code>play</code>, <code>sound</code>, <code>repeat</code>, <code>next</code>, <code>controls</code>. See the Video gallery example.</li>
+<li>New: thumbnails of video slides get a play badge, and the lightbox opens a video player for them.</li>
+<li>Fixed: in an infinite slider with <code>focusOnSelect</code>, clicking a slide copy at the other end of the loop now takes the short way round instead of sweeping back through the whole strip.</li>
+<li>Fixed: the page no longer jumps when a slider starts. Add <code>class="mozert-pre"</code> to the markup and the slides sit in a row until Mozert initialises (<code>--mozert-pre-w</code>, <code>--mozert-pre-gap</code>, <code>--mozert-pre-pad</code>, <code>--mozert-pre-h</code>).</li>
+<li>Design: the arrows are smaller on screens up to 640px (<code>--mozert-arrow-size-sm</code>).</li></ul></section>
+<section class="rel"><h3>1.1.1</h3><p class="meta">2026-11-12</p><ul>
 <li>Docs and examples for <code>prevArrow</code> / <code>nextArrow</code>, <code>appendArrows</code> / <code>appendDots</code>, <code>centerPadding</code> and <code>rtl</code>.</li>
 <li>Scroll-driven slider: <code>fill: true</code> makes the pinned slider as tall as the screen, plus <code>speed</code>, <code>offset</code> and <code>bottom</code> options.</li>
 <li>Fixed: dots moved out of the slider with <code>appendDots</code> now keep their theme styling.</li>
@@ -38,7 +44,7 @@
 <li>Autoplay: <code>autoplayReverse</code>, <code>stopOnLastSlide</code>, <code>disableOnInteraction</code>, <code>autoplayStart</code> / <code>autoplayStop</code> / <code>autoplayTimeLeft</code> events.</li>
 <li>Module API: <code>Mozert.use()</code>.</li>
 <li>Builds: UMD, ESM, minified JS/CSS, core-only bundle, TypeScript types.</li></ul></section></main>
-<footer><div class="wrap fcols"><div><img class="flogo" src="../assets/logo-stacked.png" alt="Mozert Slider" width="140" height="90"><br><strong>Mozert Slider</strong> v1.1.1<br>MIT licensed. Made by Mozert Studio.<br><code>npm i @mozert-studio/mozert-slider</code><br><a href="https://github.com/mozert-studio/mozert-slider">GitHub</a> · <a href="https://www.npmjs.com/package/@mozert-studio/mozert-slider">npm</a></div>
+<footer><div class="wrap fcols"><div><img class="flogo" src="../assets/logo-stacked.png" alt="Mozert Slider" width="140" height="90"><br><strong>Mozert Slider</strong> v1.1.2<br>MIT licensed. Made by Mozert Studio.<br><code>npm i @mozert-studio/mozert-slider</code><br><a href="https://github.com/mozert-studio/mozert-slider">GitHub</a> · <a href="https://www.npmjs.com/package/@mozert-studio/mozert-slider">npm</a></div>
 <div><a href="../features/index.html">Features</a><a href="../examples/index.html">Examples</a><a href="../docs/index.html">Docs</a><a href="../installation/index.html">Install</a></div><div><a href="../api/index.html">API</a><a href="../blog/index.html">Blog</a><a href="../changelog/index.html">Changelog</a></div></div></footer>
 <script src="../assets/site.js"></script>
 <script src="../assets/mozert.min.js"></script>
