@@ -1,6 +1,6 @@
 {
   "name": "@mozert-studio/vue",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Vue 3 component for Mozert Slider: a dependency-free slider and carousel with touch, responsive layouts, 3D effects, thumbnails and lightbox.",
   "license": "MIT",
   "type": "commonjs",
@@ -24,7 +24,7 @@
   ],
   "peerDependencies": {
     "vue": ">=3.3",
-    "@mozert-studio/mozert-slider": ">=1.1.1"
+    "@mozert-studio/mozert-slider": ">=1.1.2"
   },
   "keywords": [
     "vue",
@@ -52,7 +52,7 @@
     "nuxt",
     "nuxt3"
   ],
-  "homepage": "https://mozert-slider.netlify.app/",
+  "homepage": "https://mozert-slider.vercel.app/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mozert-studio/mozert-slider.git",

@@ -1,6 +1,6 @@
 # @mozert-studio/react
 
-React component for [Mozert Slider](https://mozert-slider.netlify.app/): a dependency-free slider and carousel with touch, responsive layouts, 3D effects, thumbnails, lightbox and scroll-driven mode.
+React component for [Mozert Slider](https://mozert-slider.vercel.app/): a dependency-free slider and carousel with touch, responsive layouts, 3D effects, thumbnails, lightbox and scroll-driven mode.
 
 ```
 npm install @mozert-studio/react @mozert-studio/mozert-slider

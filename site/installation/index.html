@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Installation | Mozert Slider</title><meta name="description" content="Install Mozert Slider with npm, a CDN or a plain script tag. Bundles, ESM, jQuery, Magento, Shopify, React and Vue.">
-<link rel="canonical" href="https://mozert-slider.netlify.app/installation/"><link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png"><link rel="apple-touch-icon" href="../assets/apple-touch-icon.png"><meta name="theme-color" content="#3633f5">
-<meta property="og:type" content="website"><meta property="og:site_name" content="Mozert Slider"><meta property="og:title" content="Installation | Mozert Slider"><meta property="og:description" content="Install Mozert Slider with npm, a CDN or a plain script tag. Bundles, ESM, jQuery, Magento, Shopify, React and Vue."><meta property="og:url" content="https://mozert-slider.netlify.app/installation/"><meta property="og:image" content="https://mozert-slider.netlify.app/assets/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Installation | Mozert Slider"><meta name="twitter:description" content="Install Mozert Slider with npm, a CDN or a plain script tag. Bundles, ESM, jQuery, Magento, Shopify, React and Vue."><meta name="twitter:image" content="https://mozert-slider.netlify.app/assets/og.png">
+<link rel="canonical" href="https://mozert-slider.vercel.app/installation/"><link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png"><link rel="apple-touch-icon" href="../assets/apple-touch-icon.png"><meta name="theme-color" content="#3633f5">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Mozert Slider"><meta property="og:title" content="Installation | Mozert Slider"><meta property="og:description" content="Install Mozert Slider with npm, a CDN or a plain script tag. Bundles, ESM, jQuery, Magento, Shopify, React and Vue."><meta property="og:url" content="https://mozert-slider.vercel.app/installation/"><meta property="og:image" content="https://mozert-slider.vercel.app/assets/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Installation | Mozert Slider"><meta name="twitter:description" content="Install Mozert Slider with npm, a CDN or a plain script tag. Bundles, ESM, jQuery, Magento, Shopify, React and Vue."><meta name="twitter:image" content="https://mozert-slider.vercel.app/assets/og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;700&display=swap">
 <link rel="stylesheet" href="../assets/mozert.min.css"><link rel="stylesheet" href="../assets/mozert-theme.min.css"><link rel="stylesheet" href="../assets/site.css">
 </head><body>
@@ -22,9 +22,9 @@ const slider = new Mozert('.slider', { dots: true });</code></pre>
 &lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mozert-studio/mozert-slider@1/dist/mozert-theme.min.css"&gt;
 &lt;script src="https://cdn.jsdelivr.net/npm/@mozert-studio/mozert-slider@1/dist/mozert.min.js"&gt;&lt;/script&gt;
 &lt;script&gt;new Mozert('.slider', { dots: true });&lt;/script&gt;</code></pre>
-<div class="callout">The <code>@1</code> in the URL always serves the newest 1.x release. Pin an exact version (for example <code>@1.1.1</code>) if you want a file that never changes. The files are also in <code>dist/</code> if you would rather host them yourself.</div>
+<div class="callout">The <code>@1</code> in the URL always serves the newest 1.x release. Pin an exact version (for example <code>@1.1.2</code>) if you want a file that never changes. The files are also in <code>dist/</code> if you would rather host them yourself.</div>
 <h2>Which file?</h2><div class="tw"><table><thead><tr><th>File</th><th>Use it for</th></tr></thead><tbody><tr><td><code>mozert.min.js</code></td><td>Default. Core and every module (effects, pagination types, free mode, zoom, virtual, and so on).</td></tr><tr><td><code>mozert.core.min.js</code></td><td>Core features only; smallest download.</td></tr><tr><td><code>mozert.esm.mjs</code></td><td>ES module for bundlers (<code>import</code> resolves to this automatically).</td></tr><tr><td><code>mozert.jquery.min.js</code></td><td>Adds <code>$.fn.mozert</code>.</td></tr></tbody></table></div>
-<h2>Frameworks</h2><p>Official packages for React and Vue 3. They create the slider after the component mounts, destroy it before the framework removes anything, and rebuild it when slides are added, removed or reordered, or an option changes. Import the slider CSS once.</p><div class="tabs"><div role="tablist"><button role="tab" aria-selected="true" id="tsuv12-0" aria-controls="tsuv12-p0" type="button">React</button><button role="tab" aria-selected="false" id="tsuv12-1" aria-controls="tsuv12-p1" type="button">Vue 3</button><button role="tab" aria-selected="false" id="tsuv12-2" aria-controls="tsuv12-p2" type="button">Next.js / Nuxt</button><button role="tab" aria-selected="false" id="tsuv12-3" aria-controls="tsuv12-p3" type="button">Shopify (Liquid)</button><button role="tab" aria-selected="false" id="tsuv12-4" aria-controls="tsuv12-p4" type="button">Magento 2 / Hyvä</button></div><div role="tabpanel" id="tsuv12-p0" aria-labelledby="tsuv12-0" ><pre data-copy><code>npm install @mozert-studio/react @mozert-studio/mozert-slider
+<h2>Frameworks</h2><p>Official packages for React and Vue 3. They create the slider after the component mounts, destroy it before the framework removes anything, and rebuild it when slides are added, removed or reordered, or an option changes. Import the slider CSS once.</p><div class="tabs"><div role="tablist"><button role="tab" aria-selected="true" id="trimv7-0" aria-controls="trimv7-p0" type="button">React</button><button role="tab" aria-selected="false" id="trimv7-1" aria-controls="trimv7-p1" type="button">Vue 3</button><button role="tab" aria-selected="false" id="trimv7-2" aria-controls="trimv7-p2" type="button">Next.js / Nuxt</button><button role="tab" aria-selected="false" id="trimv7-3" aria-controls="trimv7-p3" type="button">Shopify (Liquid)</button><button role="tab" aria-selected="false" id="trimv7-4" aria-controls="trimv7-p4" type="button">Magento 2 / Hyvä</button></div><div role="tabpanel" id="trimv7-p0" aria-labelledby="trimv7-0" ><pre data-copy><code>npm install @mozert-studio/react @mozert-studio/mozert-slider
 
 // root layout
 import '@mozert-studio/mozert-slider/css';
@@ -38,7 +38,7 @@ import MozertSlider from '@mozert-studio/react';
 
 // Every Mozert option works as a prop (or inside options={{ ... }}).
 // Each child renders one element. Give children a key.
-// onInit(slider), onChange(index, slider); a ref gives { slider, element }.</code></pre></div><div role="tabpanel" id="tsuv12-p1" aria-labelledby="tsuv12-1" hidden><pre data-copy><code>npm install @mozert-studio/vue @mozert-studio/mozert-slider
+// onInit(slider), onChange(index, slider); a ref gives { slider, element }.</code></pre></div><div role="tabpanel" id="trimv7-p1" aria-labelledby="trimv7-1" hidden><pre data-copy><code>npm install @mozert-studio/vue @mozert-studio/mozert-slider
 
 // main.js
 import '@mozert-studio/mozert-slider/css';
@@ -55,28 +55,28 @@ import MozertSlider from '@mozert-studio/vue';
 &lt;/template&gt;
 
 &lt;!-- Every Mozert option works as an attribute (camelCase) or inside :options="{ ... }".
-     Events: init, change, before-change. --&gt;</code></pre></div><div role="tabpanel" id="tsuv12-p2" aria-labelledby="tsuv12-2" hidden><pre data-copy><code>// Next.js (App Router): the file that uses the component starts with
+     Events: init, change, before-change. --&gt;</code></pre></div><div role="tabpanel" id="trimv7-p2" aria-labelledby="trimv7-2" hidden><pre data-copy><code>// Next.js (App Router): the file that uses the component starts with
 'use client';
 
 // Nuxt 3: render it on the client only
 // &lt;ClientOnly&gt;&lt;MozertSlider :slidesToShow="3"&gt;...&lt;/MozertSlider&gt;&lt;/ClientOnly&gt;
 
 // Mozert touches the DOM, so it never runs during server rendering.
-// The packages only create the slider after mount (useEffect / onVnodeMounted).</code></pre></div><div role="tabpanel" id="tsuv12-p3" aria-labelledby="tsuv12-3" hidden><pre data-copy><code>{{ 'mozert.min.css' | asset_url | stylesheet_tag }}
+// The packages only create the slider after mount (useEffect / onVnodeMounted).</code></pre></div><div role="tabpanel" id="trimv7-p3" aria-labelledby="trimv7-3" hidden><pre data-copy><code>{{ 'mozert.min.css' | asset_url | stylesheet_tag }}
 &lt;div class="product-slider"&gt;
   {% for image in product.images %}
     &lt;div&gt;&lt;img src="{{ image | image_url: width: 900 }}" alt="{{ image.alt | escape }}" loading="lazy"&gt;&lt;/div&gt;
   {% endfor %}
 &lt;/div&gt;
 &lt;script src="{{ 'mozert.min.js' | asset_url }}" defer&gt;&lt;/script&gt;
-&lt;script&gt;document.addEventListener('DOMContentLoaded', function(){ new Mozert('.product-slider', { dots: true }); });&lt;/script&gt;</code></pre></div><div role="tabpanel" id="tsuv12-p4" aria-labelledby="tsuv12-4" hidden><pre data-copy><code>&lt;!-- Hyvä (Alpine) --&gt;
+&lt;script&gt;document.addEventListener('DOMContentLoaded', function(){ new Mozert('.product-slider', { dots: true }); });&lt;/script&gt;</code></pre></div><div role="tabpanel" id="trimv7-p4" aria-labelledby="trimv7-4" hidden><pre data-copy><code>&lt;!-- Hyvä (Alpine) --&gt;
 &lt;div x-data x-init="new Mozert($refs.s, { slidesToShow: 4, spaceBetween: 16 })"&gt;
   &lt;div x-ref="s"&gt;&lt;?php foreach ($items as $item): ?&gt;&lt;div&gt;&lt;?= $item ?&gt;&lt;/div&gt;&lt;?php endforeach ?&gt;&lt;/div&gt;
 &lt;/div&gt;
 &lt;!-- Luma/RequireJS: add mozert.min.js to requirejs-config.js, then require(['mozert'], function (Mozert) {...}); --&gt;</code></pre></div></div>
-<h2>Verify</h2><p>Open the console and run <code>Mozert.version</code>; it should print <code>1.1.1</code>. Check <code>Mozert.get(el)</code> to get an instance back from an element.</p>
+<h2>Verify</h2><p>Open the console and run <code>Mozert.version</code>; it should print <code>1.1.2</code>. Check <code>Mozert.get(el)</code> to get an instance back from an element.</p>
 </main>
-<footer><div class="wrap fcols"><div><img class="flogo" src="../assets/logo-stacked.png" alt="Mozert Slider" width="140" height="90"><br><strong>Mozert Slider</strong> v1.1.1<br>MIT licensed. Made by Mozert Studio.<br><code>npm i @mozert-studio/mozert-slider</code><br><a href="https://github.com/mozert-studio/mozert-slider">GitHub</a> · <a href="https://www.npmjs.com/package/@mozert-studio/mozert-slider">npm</a></div>
+<footer><div class="wrap fcols"><div><img class="flogo" src="../assets/logo-stacked.png" alt="Mozert Slider" width="140" height="90"><br><strong>Mozert Slider</strong> v1.1.2<br>MIT licensed. Made by Mozert Studio.<br><code>npm i @mozert-studio/mozert-slider</code><br><a href="https://github.com/mozert-studio/mozert-slider">GitHub</a> · <a href="https://www.npmjs.com/package/@mozert-studio/mozert-slider">npm</a></div>
 <div><a href="../features/index.html">Features</a><a href="../examples/index.html">Examples</a><a href="../docs/index.html">Docs</a><a href="../installation/index.html">Install</a></div><div><a href="../api/index.html">API</a><a href="../blog/index.html">Blog</a><a href="../changelog/index.html">Changelog</a></div></div></footer>
 <script src="../assets/site.js"></script>
 <script src="../assets/mozert.min.js"></script>

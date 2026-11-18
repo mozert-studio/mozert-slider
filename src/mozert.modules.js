@@ -154,7 +154,8 @@
         destroy() {
           list.style.perspective = '';
           sl.track.style.transformStyle = '';
-          list.style.overflow = '';
+          list.style.opacity = list.style.transition = '';
+          list.style.overflow = list.style.paddingTop = list.style.paddingBottom = '';
           sl.el.classList.remove('mozert-fx-' + fx);
           slides().forEach((e) => {
             if (fx === 'expand' && e.firstElementChild) e.firstElementChild.style.width = e.firstElementChild.style.marginLeft = e.firstElementChild.style.transition = e.firstElementChild.style.maxWidth = '';
@@ -181,6 +182,7 @@
         items.push(els);
       });
       const bg = sl.el.querySelector('[data-parallax-bg]');
+
       const apply = (pv, animate, speed) => {
         const W = sl.slideSize || sl.list.clientWidth;
         slides.forEach((slide, k) => {
