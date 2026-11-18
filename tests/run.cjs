@@ -43,6 +43,8 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     };
     window.reset = function () { document.getElementById('stage').innerHTML = ''; };
     window.settle = function (ms) { return new Promise(function (r) { setTimeout(r, ms || 700); }); };
+    // wait until the slider has really finished moving (a fixed wait is too short on a slow, busy CI machine)
+    window.idle = function (sl, max) { var t0 = Date.now(); return new Promise(function (r) { (function chk() { if (!sl.animating || Date.now() - t0 > (max || 3000)) setTimeout(r, 80); else setTimeout(chk, 30); })(); }); };
     window.R = function (el) { var r = el.getBoundingClientRect(); return { l: r.left, r: r.right, t: r.top, b: r.bottom, w: r.width, h: r.height }; };
   });
 
@@ -80,9 +82,9 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
       d.on('beforeChange', (s, c, n) => log.push('b' + c + '>' + n));
       d.on('afterChange', (s, c) => log.push('a' + c));
       const seq = [];
-      for (let i = 0; i < 5; i++) { d.next(); await settle(320); seq.push(d.currentSlide()); }
-      d.prev(); await settle(320); seq.push(d.currentSlide());
-      d.prev(); await settle(320); d.prev(); await settle(320); d.prev(); await settle(320); d.prev(); await settle(320);
+      for (let i = 0; i < 5; i++) { d.next(); await idle(d); seq.push(d.currentSlide()); }
+      d.prev(); await idle(d); seq.push(d.currentSlide());
+      d.prev(); await idle(d); d.prev(); await idle(d); d.prev(); await idle(d); d.prev(); await idle(d);
       seq.push(d.currentSlide());
       const rect = R(d.list), cur = R(d.track.querySelector('.mozert-current'));
       return { seq, log: log.slice(0, 4), after: cur.l - rect.l, final: d.currentSlide() };
