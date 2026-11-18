@@ -70,7 +70,7 @@ const DEFAULTS = {
   on: null,
 };
 
-const LABELS = { slide: 'Slide {n} of {total}', prev: 'Previous slide', next: 'Next slide', goTo: 'Go to slide {n}', fullscreen: 'Toggle fullscreen', close: 'Close', zoom: 'Zoom', lightbox: 'Image viewer', imageOf: 'Image {n} of {total}', magnifier: 'Magnifier' };
+const LABELS = { slide: 'Slide {n} of {total}', prev: 'Previous slide', next: 'Next slide', goTo: 'Go to slide {n}', fullscreen: 'Toggle fullscreen', close: 'Close', zoom: 'Zoom', lightbox: 'Image viewer', imageOf: 'Image {n} of {total}', magnifier: 'Magnifier', playVideo: 'Play video' };
 const DEFAULT_PREV = '<button type="button" class="mozert-prev" aria-label="Previous slide">Previous</button>';
 const DEFAULT_NEXT = '<button type="button" class="mozert-next" aria-label="Next slide">Next</button>';
 const FOCUSABLE = 'a[href],button,input,select,textarea,[tabindex],[contenteditable="true"]';
@@ -1768,6 +1768,26 @@ Mozert._bridge = null;
     if (html != null) e.innerHTML = html;
     return e;
   };
+  /** Video slides: <video>, data-video="file.mp4" (+ data-poster) or data-embed="youtube:ID" / "vimeo:ID" / an https URL. */
+  const vidOf = (src) => {
+    if (!src || !src.querySelector) return null;
+    const v = src.querySelector('video');
+    const srcEl = v && v.querySelector('source');
+    const file = src.getAttribute('data-video') || (v && (v.getAttribute('src') || (srcEl && srcEl.getAttribute('src')))) || '';
+    const embed = src.getAttribute('data-embed') || '';
+    if (!v && !file && !embed) return null;
+    return { file, embed, poster: src.getAttribute('data-poster') || (v && v.getAttribute('poster')) || '', native: v || null };
+  };
+  const embedUrl = (e) => {
+    e = String(e || '').trim();
+    let m = /^youtube:([\w-]{6,})$/i.exec(e) || /(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:embed\/|watch\?(?:.*&)?v=))([\w-]{6,})/i.exec(e);
+    if (m) return 'https://www.youtube-nocookie.com/embed/' + m[1] + '?autoplay=1&rel=0&playsinline=1';
+    m = /^vimeo:(\d+)$/i.exec(e) || /vimeo\.com\/(?:video\/)?(\d+)/i.exec(e);
+    if (m) return 'https://player.vimeo.com/video/' + m[1] + '?autoplay=1';
+    return /^https:\/\//i.test(e) ? e : '';
+  };
+  const PLAY_SVG = '<svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5z"/></svg>';
+
   /** Signed distance (in slides) of slide i from visual position pv; wraps for loops. */
   const relOf = (i, pv, n, loop) => {
     let r = i - pv;
@@ -2585,6 +2605,147 @@ Mozert._bridge = null;
     },
   });
 
+  /* --------------------------------------------------------------- reel (video slides) */
+  Mozert.use({
+    name: 'reel',
+    defaults: { reel: false },
+    create(sl) {
+      const c = sl.s.reel;
+      if (!c) return null;
+      const o = objOpt(c, { play: 'click', sound: true, repeat: false, next: false, controls: true });
+      const slides = () => Array.from(sl.list.querySelectorAll('.mozert-slide'));
+      const added = [];
+      let busy = 0;
+      const hold = () => {
+        const on = slides().some((e) => e.classList.contains('mozert-vplaying'));
+        if (on) sl._holdOn('reel');
+        else sl._holdOff('reel');
+      };
+      const stop = (slide, rewind) => {
+        const nat = slide.querySelector('video:not(.mozert-vid)');
+        slide.querySelectorAll('.mozert-vid,.mozert-vframe').forEach((n) => n.remove());
+        if (nat) {
+          try {
+            nat.pause();
+            if (rewind) nat.currentTime = 0;
+          } catch (e) {}
+        }
+        if (slide.classList.contains('mozert-vplaying')) {
+          slide.classList.remove('mozert-vplaying');
+          sl.emit('reelPause', parseInt(slide.getAttribute('data-mozert-index'), 10) || 0);
+        }
+      };
+      const stopAll = (except) => {
+        slides().forEach((e) => e !== except && stop(e, true));
+        hold();
+      };
+      const start = (slide, userAction) => {
+        const v = vidOf(slide);
+        if (!v) return;
+        stopAll(slide);
+        slide.querySelectorAll('.mozert-vid,.mozert-vframe').forEach((n) => n.remove());
+        const idx = parseInt(slide.getAttribute('data-mozert-index'), 10) || 0;
+        if (v.native && !slide.querySelector('.mozert-vid')) {
+          const nat = v.native;
+          nat.muted = !(userAction && o.sound);
+          nat.loop = !!o.repeat;
+          if (o.controls && userAction) nat.controls = true;
+          nat.setAttribute('playsinline', '');
+          const p = nat.play();
+          if (p && p.catch) p.catch(() => {});
+          nat.onended = () => {
+            slide.classList.remove('mozert-vplaying');
+            hold();
+            sl.emit('reelEnd', idx);
+            if (o.next && sl.canNav) sl.next();
+          };
+        } else if (v.embed) {
+          const u = embedUrl(v.embed);
+          if (!u) return;
+          const f = mk('iframe', 'mozert-vframe');
+          f.src = u;
+          f.title = sl._label('playVideo');
+          f.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture; encrypted-media');
+          f.setAttribute('allowfullscreen', '');
+          f.setAttribute('loading', 'lazy');
+          slide.appendChild(f);
+        } else if (v.file) {
+          const nat = mk('video', 'mozert-vid');
+          nat.src = v.file;
+          if (v.poster) nat.poster = v.poster;
+          nat.muted = !(userAction && o.sound);
+          nat.loop = !!o.repeat;
+          nat.controls = !!(o.controls && userAction);
+          nat.setAttribute('playsinline', '');
+          nat.addEventListener('ended', () => {
+            nat.remove();
+            slide.classList.remove('mozert-vplaying');
+            hold();
+            sl.emit('reelEnd', idx);
+            if (o.next && sl.canNav) sl.next();
+          });
+          slide.appendChild(nat);
+          const p = nat.play();
+          if (p && p.catch) p.catch(() => {});
+        }
+        slide.classList.add('mozert-vplaying');
+        hold();
+        sl.emit('reelPlay', idx);
+      };
+      // Poster + play button on every video slide (clones included).
+      slides().forEach((e) => {
+        if (!vidOf(e) || e.querySelector('.mozert-vplay')) return;
+        const b = mk('button', 'mozert-vplay', PLAY_SVG);
+        b.type = 'button';
+        b.setAttribute('aria-label', sl._label('playVideo'));
+        e.classList.add('mozert-has-video');
+        const p = e.getAttribute('data-poster');
+        if (p && !e.querySelector('img,.mozert-vposter')) {
+          const im = mk('img', 'mozert-vposter');
+          im.src = p;
+          im.alt = '';
+          im.draggable = false;
+          e.insertBefore(im, e.firstChild);
+          added.push(im);
+        }
+        e.appendChild(b);
+        added.push(b);
+      });
+      sl._on(sl.list, 'click', (e) => {
+        const b = e.target.closest && e.target.closest('.mozert-vplay');
+        if (!b) return;
+        e.stopPropagation();
+        const slide = b.closest('.mozert-slide');
+        if (slide) start(slide, true);
+      });
+      sl._sub('beforeChange', () => stopAll(null));
+      sl._sub('lightboxOpen', () => stopAll(null));
+      const cur = () => sl.list.querySelector('.mozert-slide.mozert-current:not(.mozert-cloned)') || sl.list.querySelector('.mozert-slide.mozert-current');
+      if (o.play === 'active') {
+        const go = () => {
+          const e = cur();
+          if (e && vidOf(e)) start(e, false);
+        };
+        sl._sub('afterChange', go);
+        setTimeout(go, 0);
+      }
+      sl.reel = {
+        play(i) { const e = i == null ? cur() : sl.list.querySelector('.mozert-slide[data-mozert-index="' + i + '"]:not(.mozert-cloned)'); if (e) start(e, true); },
+        pause() { stopAll(null); },
+        isPlaying() { return slides().some((e) => e.classList.contains('mozert-vplaying')); },
+      };
+      return {
+        destroy() {
+          stopAll(null);
+          added.forEach((n) => n.parentNode && n.parentNode.removeChild(n));
+          slides().forEach((e) => e.classList.remove('mozert-has-video'));
+          sl._holdOff('reel');
+          delete sl.reel;
+        },
+      };
+    },
+  });
+
   /* --------------------------------------------------------- fullscreen */
   Mozert.use({
     name: 'fullscreen',
@@ -2709,7 +2870,8 @@ Mozert._bridge = null;
           const cell = mk('div');
           const first = src.firstElementChild;
           const img = src.querySelector('img');
-          const url = src.getAttribute('data-thumb') || (img && (img.getAttribute('data-thumb') || img.getAttribute('src') || img.getAttribute('data-lazy')));
+          const vd = vidOf(src);
+          const url = src.getAttribute('data-thumb') || (img && (img.getAttribute('data-thumb') || img.getAttribute('src') || img.getAttribute('data-lazy'))) || (vd && vd.poster);
           if (url) {
             const t = mk('img', 'mozert-thumb');
             t.src = url;
@@ -2724,6 +2886,7 @@ Mozert._bridge = null;
             t.textContent = String(i + 1);
             cell.appendChild(t);
           }
+          if (vidOf(src)) cell.classList.add('mozert-thumb-video');
           host.appendChild(cell);
         });
       }
@@ -2802,9 +2965,28 @@ Mozert._bridge = null;
         const img = src.querySelector('img');
         const a = src.querySelector('a[href]');
         const full = src.getAttribute('data-full') || (img && img.getAttribute('data-full')) || (a && isImg(a.getAttribute('href')) ? a.getAttribute('href') : '') || (img && (img.currentSrc || img.getAttribute('src'))) || '';
-        return { src: full, alt: (img && img.getAttribute('alt')) || '', cap: src.getAttribute('data-caption') || (img && img.getAttribute('data-caption')) || '', node: src };
+        const vd = vidOf(src);
+        return { src: vd ? '' : full, alt: (img && img.getAttribute('alt')) || '', cap: src.getAttribute('data-caption') || (img && img.getAttribute('data-caption')) || '', node: src, video: vd };
       };
       const stageContent = (it) => {
+        const vd = it.video;
+        if (vd && vd.embed && embedUrl(vd.embed)) {
+          const f = mk('iframe', 'mozert-lb-frame');
+          f.src = embedUrl(vd.embed);
+          f.title = it.alt || sl._label('playVideo');
+          f.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture; encrypted-media');
+          f.setAttribute('allowfullscreen', '');
+          return f;
+        }
+        if (vd && vd.file) {
+          const v = mk('video', 'mozert-lb-vid');
+          v.src = vd.file;
+          if (vd.poster) v.poster = vd.poster;
+          v.controls = true;
+          v.autoplay = true;
+          v.setAttribute('playsinline', '');
+          return v;
+        }
         if (it.src) {
           const im = mk('img', 'mozert-lb-img');
           im.src = it.src;
@@ -2846,6 +3028,7 @@ Mozert._bridge = null;
         const c = stageContent(it);
         stage.appendChild(c);
         c.classList.add('mozert-lb-in');
+        box.classList.toggle('mozert-lb-isvideo', !!it.video);
         if (dir) c.style.setProperty('--lb-from', dir > 0 ? '40px' : '-40px');
         box.querySelector('.mozert-lb-count').textContent = i + 1 + ' / ' + list.length;
         box.querySelector('.mozert-lb-cap').textContent = it.cap;

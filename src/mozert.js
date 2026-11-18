@@ -76,7 +76,7 @@ const DEFAULTS = {
   on: null,
 };
 
-const LABELS = { slide: 'Slide {n} of {total}', prev: 'Previous slide', next: 'Next slide', goTo: 'Go to slide {n}', fullscreen: 'Toggle fullscreen', close: 'Close', zoom: 'Zoom', lightbox: 'Image viewer', imageOf: 'Image {n} of {total}', magnifier: 'Magnifier' };
+const LABELS = { slide: 'Slide {n} of {total}', prev: 'Previous slide', next: 'Next slide', goTo: 'Go to slide {n}', fullscreen: 'Toggle fullscreen', close: 'Close', zoom: 'Zoom', lightbox: 'Image viewer', imageOf: 'Image {n} of {total}', magnifier: 'Magnifier', playVideo: 'Play video' };
 const DEFAULT_PREV = '<button type="button" class="mozert-prev" aria-label="Previous slide">Previous</button>';
 const DEFAULT_NEXT = '<button type="button" class="mozert-next" aria-label="Next slide">Next</button>';
 const FOCUSABLE = 'a[href],button,input,select,textarea,[tabindex],[contenteditable="true"]';
