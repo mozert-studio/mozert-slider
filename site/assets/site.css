@@ -160,9 +160,9 @@ main>h1:first-child,.wrap>main>h1:first-child{margin-top:clamp(28px,5vw,56px)}
 .fcard .more{grid-column:1/-1;justify-self:start;font-weight:600;font-size:14px;color:var(--accent);text-decoration:none}.fcard .more:hover{text-decoration:underline}
 /* blog: long code lines wrap instead of hiding off-screen */
 .post pre{white-space:pre-wrap;overflow-wrap:anywhere}
-/* bleed demo: the slides run off the right edge of the screen, but the clipping happens right here (at the screen edge),
+/* bleed demo: the slider starts at the content edge; slides run off the right edge of the screen and leave through the left edge, but the clipping happens right here (at the screen edges),
    so the page never gets wider than the screen, even in browsers without overflow:clip */
-#d-bleed-box .stage{overflow:hidden;margin-right:calc(50% - 50vw);padding-bottom:14px}
+#d-bleed-box .stage{overflow:hidden;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);padding-left:calc(50vw - 50% + 2px);padding-right:calc(50vw - 50% + 2px);padding-bottom:14px}
 @supports (overflow:clip){#d-bleed-box .stage{overflow:clip}}
 /* video gallery demo: poster fills the slide like the numbered panels */
 .reel-poster{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r)}
