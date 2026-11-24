@@ -108,8 +108,24 @@ const demoHtml = (d, base) => {
 /* ---------------------------------------------------------------- shell */
 const NAV = [['', 'Home'], ['features', 'Features'], ['examples', 'Examples'], ['docs', 'Docs'], ['installation', 'Install'], ['api', 'API'], ['blog', 'Blog'], ['changelog', 'Changelog']];
 const FONTS = 'https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@500;700&display=swap';
-const rel = (from, to) => { const up = from ? '../'.repeat(from.split('/').length) : ''; return up + (to ? to + '/' : '') + 'index.html'; };
+const rel = (from, to) => { const up = from ? '../'.repeat(from.split('/').length) : ''; return (up + (to ? to + '/' : '')) || './'; };
 const base = (path) => (path ? '../'.repeat(path.split('/').length) : '');
+
+const GH = 'https://github.com/mozert-studio/mozert-slider';
+const SAME = [GH, `https://www.npmjs.com/package/${PKG}`];
+const ldTags = (page) => {
+  const org = { '@type': 'Organization', '@id': SITE_URL + '/#org', name: 'Mozert Studio', url: SITE_URL + '/', logo: SITE_URL + '/assets/logo-512.png', sameAs: SAME };
+  const graph = [];
+  if (page.path === '') {
+    graph.push({ '@type': 'SoftwareApplication', '@id': SITE_URL + '/#app', name: 'Mozert Slider', alternateName: [PKG, 'Mozert JS slider', 'Mozert carousel'], applicationCategory: 'DeveloperApplication', operatingSystem: 'Web', softwareVersion: V, description: page.desc, url: SITE_URL + '/', image: SITE_URL + '/assets/og.png', license: 'https://opensource.org/licenses/MIT', codeRepository: GH, sameAs: SAME, author: { '@id': SITE_URL + '/#org' }, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } });
+    graph.push({ '@type': 'WebSite', '@id': SITE_URL + '/#site', name: 'Mozert Slider', alternateName: ['Mozert', 'Mozert JavaScript carousel'], url: SITE_URL + '/', publisher: { '@id': SITE_URL + '/#org' } });
+    graph.push(org);
+  } else if (page.crumbs) {
+    graph.push({ '@type': 'BreadcrumbList', itemListElement: [['Home', ''], ...page.crumbs].map(([name, p], k) => ({ '@type': 'ListItem', position: k + 1, name, item: SITE_URL + '/' + (p ? p + '/' : '') })) });
+  }
+  if (page.ld) graph.push(...page.ld);
+  return graph.length ? `\n<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')}</script>` : '';
+};
 
 function shell(page, bodyHtml, extraHead = '', scripts = '') {
   const b = base(page.path);
@@ -118,9 +134,8 @@ function shell(page, bodyHtml, extraHead = '', scripts = '') {
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(page.title)}</title><meta name="description" content="${esc(page.desc)}">
 <link rel="canonical" href="${SITE_URL}/${page.path ? page.path + '/' : ''}"><link rel="icon" type="image/png" sizes="32x32" href="${b}assets/favicon-32.png"><link rel="apple-touch-icon" href="${b}assets/apple-touch-icon.png"><meta name="theme-color" content="#3633f5">
-<meta property="og:type" content="website"><meta property="og:site_name" content="Mozert Slider"><meta property="og:title" content="${esc(page.title)}"><meta property="og:description" content="${esc(page.desc)}"><meta property="og:url" content="${SITE_URL}/${page.path ? page.path + '/' : ''}"><meta property="og:image" content="${SITE_URL}/assets/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(page.title)}"><meta name="twitter:description" content="${esc(page.desc)}"><meta name="twitter:image" content="${SITE_URL}/assets/og.png">${page.path === '' ? `
-<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'Mozert Slider', alternateName: PKG, applicationCategory: 'DeveloperApplication', operatingSystem: 'Web', softwareVersion: V, description: page.desc, url: SITE_URL + '/', license: 'https://opensource.org/licenses/MIT', codeRepository: 'https://github.com/mozert-studio/mozert-slider', author: { '@type': 'Organization', name: 'Mozert Studio' }, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } })}</script>` : ''}
+<meta property="og:type" content="${page.article ? 'article' : 'website'}"><meta property="og:site_name" content="Mozert Slider"><meta property="og:title" content="${esc(page.title)}"><meta property="og:description" content="${esc(page.desc)}"><meta property="og:url" content="${SITE_URL}/${page.path ? page.path + '/' : ''}"><meta property="og:image" content="${SITE_URL}/assets/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(page.title)}"><meta name="twitter:description" content="${esc(page.desc)}"><meta name="twitter:image" content="${SITE_URL}/assets/og.png">${ldTags(page)}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="${FONTS}">
 <link rel="stylesheet" href="${b}assets/mozert.min.css"><link rel="stylesheet" href="${b}assets/mozert-theme.min.css"><link rel="stylesheet" href="${b}assets/site.css">${extraHead}
 </head><body>
@@ -139,7 +154,17 @@ const demoScripts = (b, demos) => `<script>window.MZ_DEMOS=${JSON.stringify(demo
 
 /* ---------------------------------------------------------------- pages */
 const pages = [];
-const add = (path, title, desc, body, opts = {}) => pages.push({ path, title, desc, body, ...opts });
+const add = (path, title, desc, body, opts = {}) => pages.push({ path, title, desc, body, crumbs: path ? [[(NAV.find((n) => n[0] === path) || [0, title])[1], path]] : null, ...opts });
+
+const FAQ = [
+  ["What is Mozert Slider?", `Mozert Slider is a free, MIT-licensed JavaScript carousel and image slider by Mozert Studio. It has no dependencies, and it is published on npm as @mozert-studio/mozert-slider.`],
+  ["Is Mozert Slider free for commercial projects?", `Yes. It is MIT licensed, so you can use it in personal and commercial projects.`],
+  ["Does Mozert Slider need jQuery?", `No. It is plain JavaScript with zero dependencies. A jQuery adapter is included if you want $('.slider').mozert().`],
+  ["Does it work with React, Vue and Next.js?", `Yes. The official @mozert-studio/react and @mozert-studio/vue packages wrap it, and it also runs in Next.js, Nuxt, Shopify and Magento themes.`],
+  ["Is Mozert Slider accessible?", `Yes. It adds carousel roles and labels, keyboard control, focus handling, a live region while autoplay is paused, and respects prefers-reduced-motion.`],
+  ["How big is Mozert Slider?", `About ${SZ.core.gz} KB gzipped for the core and ${SZ.full.gz} KB with every effect and module.`]
+];
+const FAQ_LD = FAQ.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } }));
 
 // HOME
 {
@@ -165,11 +190,13 @@ const add = (path, title, desc, body, opts = {}) => pages.push({ path, title, de
 <div class="card"><h3>Accessible by default</h3><p>Roles, labels, keyboard, focus handling, live region while paused, and reduced-motion support.</p></div>
 <div class="card"><h3>Real touch handling</h3><p>Pointer Events, axis locking, momentum, edge resistance, and no scroll-jacking on vertical swipes.</p></div>
 <div class="card"><h3>Framework friendly</h3><p>Vanilla JS with ESM, CJS, UMD and TypeScript types. Works in Magento, Shopify, React, Vue and plain HTML.</p></div></div>
+<section id="what-is"><h2>What is Mozert Slider?</h2><p><strong>Mozert Slider</strong> is a free, dependency-free <strong>JavaScript carousel and image slider</strong> from Mozert Studio. Use it for hero banners, product galleries with thumbnails and zoom, 3D coverflow carousels, video galleries, scroll-driven sections and full-width bleed layouts. It runs in plain HTML, React, Vue, Next.js, Shopify and Magento. Learn more in the <a href="${rel('', 'docs')}">docs</a>, the <a href="${rel('', 'features')}">features list</a> or the <a href="${rel('', 'blog')}">tutorials</a>.</p></section>
 <h2>Try it</h2>${code(`npm install ${PKG}`)}${code(`import Mozert from '${PKG}';
 import '${PKG}/css';
 
 new Mozert('.slider', { slidesToShow: 3, spaceBetween: 16, pagination: { type: 'dynamic' } });`)}
-`, { extra: demoScripts('', heroDemos), demos: heroDemos });
+<section id="faq"><h2>Frequently asked questions</h2>${FAQ.map(([q, a]) => `<details class="faq"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</section>
+`, { extra: demoScripts('', heroDemos), demos: heroDemos, ld: [{ '@type': 'FAQPage', mainEntity: FAQ_LD }] });
 }
 
 const ico = (d) => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
@@ -319,7 +346,7 @@ new Mozert('.slider', {
   appendArrows: '#arrows',   // selector or element
   appendDots: '#dots',
   dots: true
-});`)}<p><code>prevArrow</code> and <code>nextArrow</code> take an HTML string or an element, so the arrows can look and read however you want. Mozert adds the classes <code>mozert-prev</code> / <code>mozert-next</code> and wires the clicks, the disabled state at the ends and the <code>aria-label</code>. <code>appendArrows</code> and <code>appendDots</code> move the arrows and the dots out of the slider into any element. The default round arrows are positioned over the slider, so when you append them elsewhere give them your own style (for example <code>position: static</code>). The dots keep working with <code>customPaging</code>, <code>dotsClass</code> and <code>dots: 'dynamic'</code> style pagination. See the live example on the <a href="../examples/index.html#d-arrows-box">Examples page</a>.</p></section>
+});`)}<p><code>prevArrow</code> and <code>nextArrow</code> take an HTML string or an element, so the arrows can look and read however you want. Mozert adds the classes <code>mozert-prev</code> / <code>mozert-next</code> and wires the clicks, the disabled state at the ends and the <code>aria-label</code>. <code>appendArrows</code> and <code>appendDots</code> move the arrows and the dots out of the slider into any element. The default round arrows are positioned over the slider, so when you append them elsewhere give them your own style (for example <code>position: static</code>). The dots keep working with <code>customPaging</code>, <code>dotsClass</code> and <code>dots: 'dynamic'</code> style pagination. See the live example on the <a href="../examples/#d-arrows-box">Examples page</a>.</p></section>
 <section id="center-padding"><h2>Center padding</h2>${code(`new Mozert('.slider', {
   centerMode: true,
   centerPadding: '140px',   // peek width on each side: px or %
@@ -330,7 +357,7 @@ new Mozert('.slider', {
   rtl: true,
   slidesToShow: 2.2,
   dots: true
-});`)}<p><code>rtl: true</code> is for right-to-left pages. The slides start from the right, swiping, the previous/next arrows and the keyboard arrow keys follow the reading direction, and the slider gets <code>dir="rtl"</code> so your text and layout flip with it. It works with vertical off, with <code>infinite</code>, <code>centerMode</code>, thumbs and every pagination type. See the live example on the <a href="../examples/index.html#d-rtl-box">Examples page</a>.</p></section>
+});`)}<p><code>rtl: true</code> is for right-to-left pages. The slides start from the right, swiping, the previous/next arrows and the keyboard arrow keys follow the reading direction, and the slider gets <code>dir="rtl"</code> so your text and layout flip with it. It works with vertical off, with <code>infinite</code>, <code>centerMode</code>, thumbs and every pagination type. See the live example on the <a href="../examples/#d-rtl-box">Examples page</a>.</p></section>
 <section id="thumbs"><h2>Thumbnails</h2>${code(`// One option: a strip is created below the slider
 new Mozert('#gallery', { thumbs: true });
 
@@ -526,14 +553,60 @@ import '${PKG}/theme.css';`)}<h3>3. Use it</h3>${code(`import MozertSlider from 
   <div v-for="p in products" :key="p.id">{{ p.name }}</div>
 </MozertSlider>`)}<p>In Nuxt wrap it in <code>&lt;ClientOnly&gt;</code>.</p><h3>Calling methods</h3><p>React: <code>ref.current.slider.next()</code>. Vue: <code>ref.value.slider().goTo(2)</code>. Or keep the instance from <code>onInit</code> / the <code>init</code> event.</p>`],
     ['shopify-magento', 'Using Mozert in Shopify and Magento themes', 'Plain script tags, no build step.', `<p>In Shopify, upload <code>mozert.min.js</code> and <code>mozert.min.css</code> to <em>assets</em>, include them with <code>asset_url</code> and initialise after <code>DOMContentLoaded</code>. In Magento 2 with Hyvä, initialise from an Alpine <code>x-init</code>; with Luma, register the file in <code>requirejs-config.js</code>. The installation page has copy-paste snippets for both.</p>`],
+    ['bleed-layout-carousel', 'Bleed layout carousel: run off the screen edge', 'The first slide lines up with your content, the rest run past the right edge of the screen.', `<p>A bleed layout is common on shop and editorial pages: the heading and the first card sit on the page grid, but the row of cards keeps going to the edge of the browser. Mozert does this with one option.</p>${code(`<div class="container">
+  <h2>New this week</h2>
+  <div class="cards">
+    <div>Card 1</div><div>Card 2</div><div>Card 3</div><div>Card 4</div>
+  </div>
+</div>
+
+<script>
+  new Mozert('.cards', {
+    bleed: true,
+    slidesToShow: 2.6,
+    spaceBetween: 16,
+    infinite: false,
+    dots: false,
+    responsive: [{ breakpoint: 640, settings: { slidesToShow: 1.4 } }]
+  });
+</script>`)}<p>With <code>bleed: true</code> the first slide starts at the left edge of your container. The slider grows to the right edge of the screen, so the next card peeks out and invites a swipe. As you scroll through the row, slides leave through the left edge of the screen, and the last slide stops at the container edge instead of floating in empty space.</p><h3>Tips</h3><ul><li>Use a fractional <code>slidesToShow</code> such as 2.6 so a part of the next card is always visible.</li><li>Keep <code>infinite: false</code>. A bleed row has a real start and a real end.</li><li>On phones use a smaller value, for example 1.4, with a breakpoint.</li></ul><p>See it live in the Bleed layout example on the Examples page.</p>`],
+    ['scroll-driven-slider', 'Scroll-driven slider: move slides with the page scroll', 'Pin a slider to the screen and let the scroll wheel move the slides sideways.', `<p>A scroll-driven slider sticks to the screen while you scroll through a tall section. Your scroll moves the slides sideways, then the page carries on. It is good for product stories, feature tours and timelines.</p>${code(`new Mozert('.story', {
+  scrollDriven: {
+    fill: true,   // the pinned slider takes the whole screen height
+    offset: 76,   // px kept free at the top for a sticky header
+    bottom: 24,   // px kept free at the bottom
+    speed: 1.6    // px the slides travel per px of scroll
+  },
+  infinite: false, arrows: false, dots: false, draggable: false
+});`)}<p>The slider is wrapped in a tall section. The section is only as tall as the slides need to travel divided by <code>speed</code>, so there is no long empty scroll. Use <code>step</code> if you want a fixed number of pixels of scrolling per slide.</p><p>Because the page scroll drives the slides, touch and mouse wheel scrolling keep working naturally. The slider does not hijack the scroll: when the last slide is reached, the page moves on.</p>`],
+    ['product-gallery-thumbnails-lightbox', 'Product gallery with thumbnails, zoom and lightbox', 'A shop-style gallery: main picture, thumbnail strip, hover magnifier and a full-screen viewer.', `<p>One slider can be a complete product gallery. Mozert builds the thumbnail strip, keeps it in sync, adds hover zoom and opens a full-screen lightbox on click.</p>${code(`new Mozert('.product', {
+  thumbs: { position: 'left', count: 4 },  // 'left', 'right', 'top' or 'bottom'
+  magnifier: true,                           // button in the corner turns on hover zoom
+  lightbox: true,                            // click opens the full-screen viewer
+  arrows: true,
+  dots: false
+});`)}<p>The thumbnail strip can stand on the left or right of the main picture, and drops below it on small screens. In the lightbox you get next and previous, arrow keys, swipe, click to zoom and Esc to close, with focus handled for keyboard users. Slides with <code>data-video</code> turn into video slides with <code>reel: true</code>, and the lightbox plays them too.</p><p>Each thumbnail uses the slide image, or the URL in <code>data-thumb</code> if you want a smaller file. See the Thumbnails, Product gallery and Lightbox examples.</p>`],
   ];
-  add('blog', 'Blog and tutorials | Mozert Slider', 'Tutorials: hero sliders, accessible carousels, coverflow galleries, virtual slides and theme integrations.', `
-<h1>Blog and tutorials</h1><nav class="toc" style="position:static;display:flex;flex-wrap:wrap;gap:4px;margin:0 0 12px" aria-label="Articles">${posts.map(([id, t]) => `<a href="#${id}" style="border:1px solid var(--line);border-radius:8px">${esc(t)}</a>`).join('')}</nav>
-${posts.map(([id, t, sub, body]) => `<article class="post" id="${id}"><h2>${esc(t)}</h2><p class="meta">${sub}</p>${body}</article>`).join('')}`);
+  const POST_DATE = '2026-11-24';
+  add('blog', 'Blog and tutorials | Mozert Slider', 'Tutorials for Mozert Slider: hero sliders, accessible carousels, coverflow galleries, bleed layouts, scroll-driven sections, product galleries and React, Vue, Shopify and Magento setup.', `
+<h1>Blog and tutorials</h1><p class="lead">Step-by-step guides for building carousels and galleries with Mozert Slider.</p>
+<div class="grid">${posts.map(([id, t, sub]) => `<a class="card postcard" href="${rel('blog', 'blog/' + id)}"><h2>${esc(t)}</h2><p>${esc(sub)}</p><span class="more">Read the guide</span></a>`).join('')}</div>`);
+  for (const [id, t, sub, body] of posts) {
+    const path = 'blog/' + id;
+    const others = posts.filter((x) => x[0] !== id).slice(0, 4);
+    add(path, t + ' | Mozert Slider', sub + ' A step-by-step Mozert Slider tutorial with code.', `
+<nav class="crumbs" aria-label="Breadcrumb"><a href="${rel(path, '')}">Home</a> / <a href="${rel(path, 'blog')}">Blog</a></nav>
+<article class="post"><h1>${esc(t)}</h1><p class="meta">${esc(sub)}</p>${body}</article>
+<section><h2>More tutorials</h2><ul>${others.map(([i2, t2]) => `<li><a href="${rel(path, 'blog/' + i2)}">${esc(t2)}</a></li>`).join('')}</ul><p><a class="btn pri" href="${rel(path, 'installation')}">Install Mozert Slider</a> <a class="btn" href="${rel(path, 'examples')}">Live examples</a></p></section>`, {
+      article: true,
+      crumbs: [['Blog', 'blog'], [t, path]],
+      ld: [{ '@type': 'Article', headline: t, description: sub, datePublished: POST_DATE, dateModified: POST_DATE, mainEntityOfPage: SITE_URL + '/' + path + '/', image: SITE_URL + '/assets/og.png', author: { '@type': 'Organization', name: 'Mozert Studio', url: SITE_URL + '/' }, publisher: { '@type': 'Organization', name: 'Mozert Studio', logo: { '@type': 'ImageObject', url: SITE_URL + '/assets/logo-512.png' } } }],
+    });
+  }
 }
 
 // CHANGELOG
-add('changelog', 'Changelog | Mozert Slider', 'Version history of Mozert Slider.', `
+add('changelog', 'Changelog | Mozert Slider', 'Version history of Mozert Slider: every release with new features, fixes and design changes, from 1.1.0 to the latest version.', `
 <h1>Changelog</h1><p class="lead">Mozert follows semantic versioning.</p>
 <section class="rel"><h3>${V} <span class="pill">latest</span></h3><p class="meta">2026-11-18</p><ul>
 <li>New: <code>reel: true</code>, a video gallery. Slides with <code>data-video</code> or <code>data-embed</code> become video slides: play inside the slide, stop when you leave it. Options: <code>play</code>, <code>sound</code>, <code>repeat</code>, <code>next</code>, <code>controls</code>. See the Video gallery example.</li>
@@ -585,7 +658,7 @@ copyFileSync(join(root, 'site-src/og.png'), join(OUT, 'assets/og.png'));
 for (const f of ['favicon.svg', 'favicon-32.png', 'apple-touch-icon.png', 'logo.png', 'logo-stacked.png', 'logo-mark.png', 'logo-512.png']) copyFileSync(join(root, 'site-src', f), join(OUT, 'assets', f));
 copyFileSync(join(root, 'site-src/favicon-32.png'), join(OUT, 'favicon.ico'));
 const today = new Date().toISOString().slice(0, 10);
-writeFileSync(join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${SITE_URL}/${p.path ? p.path + '/' : ''}</loc><lastmod>${today}</lastmod><priority>${p.path === '' ? '1.0' : '0.8'}</priority></url>`).join('\n')}\n</urlset>\n`);
+writeFileSync(join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${SITE_URL}/${p.path ? p.path + '/' : ''}</loc><lastmod>${today}</lastmod><priority>${p.path === '' ? '1.0' : p.article ? '0.6' : '0.8'}</priority></url>`).join('\n')}\n</urlset>\n`);
 writeFileSync(join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
-writeFileSync(join(OUT, '404.html'), shell({ path: '', title: 'Page not found | Mozert Slider', desc: 'This page does not exist.' }, '<h1>Page not found</h1><p class="lead">That page does not exist. Try the <a href="/index.html">home page</a>, the <a href="/docs/index.html">docs</a> or the <a href="/examples/index.html">examples</a>.</p>').replace(/<link rel="canonical"[^>]*>/, '<meta name="robots" content="noindex">'));
+writeFileSync(join(OUT, '404.html'), shell({ path: '', title: 'Page not found | Mozert Slider', desc: 'This page does not exist.' }, '<h1>Page not found</h1><p class="lead">That page does not exist. Try the <a href="/">home page</a>, the <a href="/docs/">docs</a> or the <a href="/examples/">examples</a>.</p>').replace(/<link rel="canonical"[^>]*>/, '<meta name="robots" content="noindex">'));
 console.log('site/ built:', pages.map((p) => p.path || '/').join(', '));
