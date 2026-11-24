@@ -168,3 +168,16 @@ main>h1:first-child,.wrap>main>h1:first-child{margin-top:clamp(28px,5vw,56px)}
 .reel-poster{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r)}
 #d-reel-box .mozert-has-video{border-radius:var(--r);overflow:hidden}
 
+
+/* faq, blog cards, breadcrumbs */
+.faq{border:1px solid var(--line);border-radius:10px;margin:0 0 10px;padding:0 16px;background:var(--card,transparent)}
+.faq summary{cursor:pointer;font-weight:600;padding:14px 0;list-style:none}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";float:right;font-weight:400}
+.faq[open] summary::after{content:"\2212"}
+.faq p{margin:0 0 14px}
+.postcard{display:block;text-decoration:none;color:inherit}
+.postcard h2{font-size:1.1rem;margin:0 0 6px}
+.postcard .more{display:inline-block;margin-top:8px;font-weight:600}
+.crumbs{font-size:.9rem;margin:0 0 10px;opacity:.8}
+.crumbs a{text-decoration:none}

@@ -1,5 +1,6 @@
 {
   "buildCommand": "npm run build && npm run site",
   "outputDirectory": "site",
-  "installCommand": "npm install --ignore-scripts"
+  "installCommand": "npm install --ignore-scripts",
+  "trailingSlash": true
 }
