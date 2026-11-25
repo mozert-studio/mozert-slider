@@ -1,10 +1,10 @@
 /*!
- * Mozert 1.1.2
+ * Mozert 1.1.3
  * A dependency-free, responsive, touch-friendly carousel / slider.
  * MIT License
  */
 const Mozert = (function () {
-const VERSION = '1.1.2';
+const VERSION = '1.1.3';
 
 const DEFAULTS = {
   accessibility: true,
@@ -16,6 +16,8 @@ const DEFAULTS = {
   autoplay: false,
   disableOnInteraction: false,
   autoplayReverse: false,
+  pauseOffscreen: true,
+  optimizeImages: true,
   autoplaySpeed: 3000,
   centerMode: false,
   centerPadding: '50px',
@@ -531,6 +533,21 @@ class Mozert {
       window.removeEventListener('orientationchange', onResize);
       document.removeEventListener('visibilitychange', onVis);
     });
+    if (typeof IntersectionObserver !== 'undefined') {
+      // Autoplay waits while the slider is scrolled out of view or hidden, and carries on when it comes back.
+      this._io = new IntersectionObserver((entries) => {
+        const e = entries[entries.length - 1];
+        if (!e || this.s.pauseOffscreen === false) return;
+        if (e.isIntersecting) this._holdOff('offscreen');
+        else this._holdOn('offscreen');
+      });
+      this._io.observe(this.el);
+      this._life.push(() => {
+        this._io.disconnect();
+        this._io = null;
+        this._pause.delete('offscreen');
+      });
+    }
     if (typeof ResizeObserver !== 'undefined') {
       // Handle the change in the next frame, not inside the observer callback: layout work in there
       // makes Safari report "ResizeObserver loop completed with undelivered notifications".
@@ -704,6 +721,7 @@ class Mozert {
       u.querySelectorAll('[data-lazy-bg]').forEach((b, k) => b.setAttribute('data-mozert-bg', String(k)));
       this.track.appendChild(u);
     });
+    this._tuneImages(units, keep);
     this.dom = units.slice();
     this.cloneCount = 0;
 
@@ -749,6 +767,34 @@ class Mozert {
     this._live();
     this._schedule();
     this.emit('setPosition');
+  }
+
+  // Image hints for the page speed score: the first visible picture is fetched with high priority, slides far from view
+  // get native lazy loading, and data-lazy-placeholder shows a tiny blurred picture until the real one arrives.
+  _tuneImages(units, keep) {
+    const s = this.s;
+    units.forEach((u) => {
+      u.querySelectorAll('img[data-lazy][data-lazy-placeholder]').forEach((im) => {
+        const ph = im.getAttribute('data-lazy-placeholder');
+        if (!ph) return;
+        im.style.backgroundImage = 'url("' + ph.replace(/"/g, '%22') + '")';
+        im.classList.add('mozert-blur');
+      });
+    });
+    if (!s.optimizeImages) return;
+    const start = keep ? this.current : parseInt(s.initialSlide, 10) || 0;
+    const show = Math.max(1, this._showC || 1);
+    let boosted = false;
+    units.forEach((u, i) => {
+      const seen = i >= start && i < start + show;
+      u.querySelectorAll('img[src]:not([data-lazy])').forEach((im) => {
+        if (!im.hasAttribute('decoding')) im.setAttribute('decoding', 'async');
+        if (seen) {
+          if (!boosted && !im.hasAttribute('fetchpriority')) im.setAttribute('fetchpriority', 'high');
+          boosted = true;
+        } else if (i > start + show && !im.hasAttribute('loading')) im.setAttribute('loading', 'lazy');
+      });
+    });
   }
 
   _addClones() {
@@ -1540,6 +1586,7 @@ class Mozert {
   _holdOn(reason) {
     this._pause.add(reason);
     clearTimeout(this._apTimer);
+    cancelAnimationFrame(this._apRaf);
   }
 
   _holdOff(reason) {
@@ -1712,6 +1759,7 @@ class Mozert {
         img.removeAttribute('data-mozert-loading');
         img.classList.remove('mozert-loading');
         img.classList.add('mozert-loaded');
+        img.style.backgroundImage = '';
         this._lazyClones(index, src, srcset, sizes, img);
         this.emit('lazyLoaded', img, src);
         fin();
@@ -1741,6 +1789,7 @@ class Mozert {
       c.src = src;
       c.removeAttribute('data-lazy');
       c.classList.add('mozert-loaded');
+      c.style.backgroundImage = '';
     });
   }
 }
@@ -2966,6 +3015,8 @@ Mozert._bridge = null;
       let zoomed = false;
       let zrect = null;
       let drag = null;
+      // Touch view of the picture: scale + offset from its centre (pinch, double-tap, pan).
+      let view = { sc: 1, tx: 0, ty: 0 };
       const items = () => sl._items || [];
       const isImg = (h) => /^data:image\//i.test(h || '') || /\.(jpe?g|png|gif|webp|avif|svg)(\?|#|$)/i.test(h || '');
       const info = (src) => {
@@ -3019,7 +3070,9 @@ Mozert._bridge = null;
           el.style.transformOrigin = ox + '% ' + oy + '%';
           el.style.transform = 'scale(' + o.maxZoom + ')';
         } else {
+          view = { sc: 1, tx: 0, ty: 0 };
           el.style.transform = '';
+          el.style.transition = '';
         }
       };
       const show = (i, dir) => {
@@ -3102,30 +3155,175 @@ Mozert._bridge = null;
         nx.addEventListener('click', () => show(idx + 1, 1));
         const zb = box.querySelector('.mozert-lb-zoom');
         if (zb) zb.addEventListener('click', () => setZoom(!zoomed));
-        // Click outside the picture closes, click on the picture toggles zoom, swipe changes picture.
+        // Mouse: click outside the picture closes, click on the picture toggles zoom, drag changes picture.
+        // Touch: pinch or double-tap to zoom, drag to pan when zoomed, swipe sideways for the next picture, swipe down to close.
+        let lastType = 'mouse';
+        const media = () => box && box.querySelector('.mozert-lb-img,.mozert-lb-clone');
+        const ptrs = new Map();
+        let g = null;
+        let lastTap = null;
+        const paint = (el, anim) => {
+          el.style.transition = anim ? 'transform .22s ease' : 'none';
+          el.style.transformOrigin = '50% 50%';
+          el.style.transform = view.sc === 1 && !view.tx && !view.ty ? '' : 'translate(' + view.tx + 'px,' + view.ty + 'px) scale(' + view.sc + ')';
+          zoomed = view.sc > 1.02;
+          box.classList.toggle('mozert-lb-zoomed', zoomed);
+        };
+        const limit = (el) => {
+          const mx = Math.max(0, ((view.sc - 1) * el.offsetWidth) / 2);
+          const my = Math.max(0, ((view.sc - 1) * el.offsetHeight) / 2);
+          view.tx = clampN(view.tx, -mx, mx);
+          view.ty = clampN(view.ty, -my, my);
+        };
+        // centre of the picture without any translate (scale around the centre does not move it)
+        const centre = (el) => {
+          const r = el.getBoundingClientRect();
+          return { x: r.left + r.width / 2 - view.tx, y: r.top + r.height / 2 - view.ty };
+        };
+        const zoomAt = (el, x, y, sc, anim) => {
+          const c = centre(el);
+          const q = { x: (x - c.x - view.tx) / view.sc, y: (y - c.y - view.ty) / view.sc };
+          view.tx = x - c.x - sc * q.x;
+          view.ty = y - c.y - sc * q.y;
+          view.sc = sc;
+          limit(el);
+          paint(el, anim);
+        };
+        const inside = (el, e) => {
+          const r = el.getBoundingClientRect();
+          return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+        };
+        const mids = () => {
+          const v = Array.from(ptrs.values());
+          return { x: (v[0].x + v[1].x) / 2, y: (v[0].y + v[1].y) / 2, d: Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y) || 1 };
+        };
         stage.addEventListener('click', (e) => {
           if (drag && drag.moved) return;
-          if (e.target.closest && e.target.closest('.mozert-lb-img,.mozert-lb-clone')) setZoom(!zoomed, e);
-          else if (e.target === stage) close();
+          const onMedia = e.target.closest && e.target.closest('.mozert-lb-img,.mozert-lb-clone');
+          if (onMedia) {
+            if (lastType === 'mouse') setZoom(!zoomed, e);
+          } else if (e.target === stage) close();
         });
         stage.addEventListener('pointerdown', (e) => {
+          lastType = e.pointerType || 'mouse';
           drag = { x: e.clientX, y: e.clientY, moved: false, id: e.pointerId };
+          if (lastType === 'mouse') return;
+          const el = media();
+          if (!el) return;
+          if (zoomed && view.sc === 1) setZoom(false); // zoom made with the button: start from a clean view
+          ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+          if (ptrs.size === 2 && o.zoom) {
+            const m = mids();
+            g = { mode: 'pinch', d0: m.d, sc0: view.sc, mx: m.x, my: m.y, tx0: view.tx, ty0: view.ty };
+            drag.moved = true;
+          } else if (ptrs.size === 1) {
+            g = { mode: 'pending', x0: e.clientX, y0: e.clientY, tx0: view.tx, ty0: view.ty, t0: Date.now() };
+          }
         });
         stage.addEventListener('pointermove', (e) => {
           // While zoomed, the mouse pans the picture (the zoom follows the pointer).
           if (zoomed && zrect && e.pointerType === 'mouse' && !drag) {
-            const z = box.querySelector('.mozert-lb-img,.mozert-lb-clone');
+            const z = media();
             if (z) z.style.transformOrigin = clampN(((e.clientX - zrect.left) / zrect.width) * 100, 0, 100) + '% ' + clampN(((e.clientY - zrect.top) / zrect.height) * 100, 0, 100) + '%';
           }
           if (!drag) return;
           const dx = e.clientX - drag.x;
           if (Math.abs(dx) > 6 || Math.abs(e.clientY - drag.y) > 6) drag.moved = true;
+          if (e.pointerType === 'mouse' || !ptrs.has(e.pointerId) || !g) return;
+          ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+          const el = media();
+          if (!el) return;
+          if (g.mode === 'pinch' && ptrs.size >= 2) {
+            const m = mids();
+            const sc = clampN(g.sc0 * (m.d / g.d0), 1, Math.max(o.maxZoom, 4));
+            // keep the point that was between the fingers under the fingers
+            const c = centre(el);
+            const q = { x: (g.mx - c.x - g.tx0) / g.sc0, y: (g.my - c.y - g.ty0) / g.sc0 };
+            view.sc = sc;
+            view.tx = m.x - c.x - sc * q.x;
+            view.ty = m.y - c.y - sc * q.y;
+            limit(el);
+            paint(el, false);
+            return;
+          }
+          if (g.mode === 'pending') {
+            const ddx = e.clientX - g.x0;
+            const ddy = e.clientY - g.y0;
+            if (Math.abs(ddx) < 8 && Math.abs(ddy) < 8) return;
+            if (view.sc > 1.02) g.mode = 'pan';
+            else if (ddy > 0 && Math.abs(ddy) > Math.abs(ddx)) g.mode = 'down';
+            else g.mode = 'swipe';
+          }
+          if (g.mode === 'pan') {
+            view.tx = g.tx0 + (e.clientX - g.x0);
+            view.ty = g.ty0 + (e.clientY - g.y0);
+            limit(el);
+            paint(el, false);
+          } else if (g.mode === 'down') {
+            const dy = Math.max(0, e.clientY - g.y0);
+            el.style.transition = 'none';
+            el.style.transform = 'translateY(' + dy + 'px) scale(' + (1 - Math.min(dy / 900, 0.25)) + ')';
+            box.style.opacity = String(1 - Math.min(dy / 420, 0.7));
+            g.dy = dy;
+          }
         });
-        stage.addEventListener('pointerup', (e) => {
+        const release = (e) => {
           if (!drag) return;
           const dx = e.clientX - drag.x;
           const moved = drag.moved;
-          if (moved && !zoomed && Math.abs(dx) > 50) show(idx + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+          const touch = e.pointerType && e.pointerType !== 'mouse';
+          if (touch && ptrs.has(e.pointerId)) {
+            ptrs.delete(e.pointerId);
+            const el = media();
+            const gm = g && g.mode;
+            if (gm === 'pinch') {
+              if (view.sc < 1.05) {
+                view = { sc: 1, tx: 0, ty: 0 };
+                if (el) paint(el, true);
+              }
+              g = null;
+              if (ptrs.size === 1) {
+                const rest = Array.from(ptrs.values())[0];
+                g = { mode: 'pan', x0: rest.x, y0: rest.y, tx0: view.tx, ty0: view.ty };
+              }
+            } else if (gm === 'down' && box) {
+              const dy = g.dy || 0;
+              g = null;
+              if (dy > 110) close();
+              else {
+                box.style.opacity = '';
+                if (el) {
+                  el.style.transition = 'transform .22s ease';
+                  el.style.transform = view.sc === 1 ? '' : 'translate(' + view.tx + 'px,' + view.ty + 'px) scale(' + view.sc + ')';
+                }
+              }
+            } else if (gm === 'pending' && el && o.zoom && inside(el, e)) {
+              // a tap: two quick taps zoom in or out around the tap point
+              const now = Date.now();
+              if (lastTap && now - lastTap.t < 320 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 36) {
+                lastTap = null;
+                if (view.sc > 1.02) {
+                  view = { sc: 1, tx: 0, ty: 0 };
+                  paint(el, true);
+                } else zoomAt(el, e.clientX, e.clientY, o.maxZoom, true);
+              } else lastTap = { t: now, x: e.clientX, y: e.clientY };
+              g = null;
+            } else if (ptrs.size === 0) g = null;
+          }
+          if (moved && !zoomed && touch && g === null && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(e.clientY - drag.y)) show(idx + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+          else if (moved && !zoomed && !touch && Math.abs(dx) > 50) show(idx + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+          setTimeout(() => (drag = null), 0);
+        };
+        stage.addEventListener('pointerup', release);
+        stage.addEventListener('pointercancel', (e) => {
+          ptrs.delete(e.pointerId);
+          g = null;
+          if (box) box.style.opacity = '';
+          const el = media();
+          if (el && view.sc === 1) {
+            el.style.transform = '';
+            el.style.transition = '';
+          }
           setTimeout(() => (drag = null), 0);
         });
         document.addEventListener('keydown', key, true);
@@ -3286,6 +3484,38 @@ Mozert._bridge = null;
   // per px of page scroll (higher = less page height used); `step` forces a fixed number of px per slide instead.
   // `top: 'center'` pins the slider in the middle of the screen, a number pins it that many px from the top;
   // `offset` adds room for a sticky header. Works with non-looping, horizontal sliders.
+  /* ------------------------------------------------- autoplayIndicator */
+  // autoplayIndicator: 'ring' | 'bar' | { type: 'ring' }. Shows how long until the next slide while autoplay runs.
+  // Pauses with autoplay (hover, focus, offscreen). Style it with --mozert-ap-color, --mozert-ap-size.
+  Mozert.use({
+    name: 'autoplayIndicator',
+    defaults: { autoplayIndicator: false },
+    create(sl) {
+      const c = sl.s.autoplayIndicator;
+      if (!c || !sl.s.autoplay || !sl.canNav) return null;
+      const o = objOpt(typeof c === 'string' ? { type: c } : c, { type: 'ring' });
+      const bar = o.type === 'bar';
+      const root = mk('div', 'mozert-ap mozert-ap-' + (bar ? 'bar' : 'ring'));
+      root.setAttribute('aria-hidden', 'true');
+      const C = 2 * Math.PI * 15;
+      root.innerHTML = bar ? '<i></i>' : '<svg viewBox="0 0 36 36" width="100%" height="100%"><circle class="mozert-ap-bg" cx="18" cy="18" r="15"/><circle class="mozert-ap-fg" cx="18" cy="18" r="15" stroke-dasharray="' + C.toFixed(2) + '" stroke-dashoffset="' + C.toFixed(2) + '"/></svg>';
+      sl.el.appendChild(root);
+      const fg = root.querySelector(bar ? 'i' : '.mozert-ap-fg');
+      const paint = (p) => {
+        if (bar) fg.style.transform = 'scaleX(' + p.toFixed(4) + ')';
+        else fg.style.strokeDashoffset = (C * (1 - p)).toFixed(2);
+      };
+      sl._sub('autoplayTimeLeft', (self, ms, frac) => paint(clampN(1 - frac, 0, 1)));
+      sl._sub('beforeChange', () => paint(0));
+      paint(0);
+      return {
+        destroy() {
+          if (root.parentNode) root.parentNode.removeChild(root);
+        },
+      };
+    },
+  });
+
   Mozert.use({
     name: 'scrollDriven',
     defaults: { scrollDriven: false },

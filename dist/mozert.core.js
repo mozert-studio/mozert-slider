@@ -1,5 +1,5 @@
 /*!
- * Mozert 1.1.2
+ * Mozert 1.1.3
  * A dependency-free, responsive, touch-friendly carousel / slider.
  * MIT License
  */
@@ -10,7 +10,7 @@
 }(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
   //#region core
-const VERSION = '1.1.2';
+const VERSION = '1.1.3';
 
 const DEFAULTS = {
   accessibility: true,
@@ -22,6 +22,8 @@ const DEFAULTS = {
   autoplay: false,
   disableOnInteraction: false,
   autoplayReverse: false,
+  pauseOffscreen: true,
+  optimizeImages: true,
   autoplaySpeed: 3000,
   centerMode: false,
   centerPadding: '50px',
@@ -537,6 +539,21 @@ class Mozert {
       window.removeEventListener('orientationchange', onResize);
       document.removeEventListener('visibilitychange', onVis);
     });
+    if (typeof IntersectionObserver !== 'undefined') {
+      // Autoplay waits while the slider is scrolled out of view or hidden, and carries on when it comes back.
+      this._io = new IntersectionObserver((entries) => {
+        const e = entries[entries.length - 1];
+        if (!e || this.s.pauseOffscreen === false) return;
+        if (e.isIntersecting) this._holdOff('offscreen');
+        else this._holdOn('offscreen');
+      });
+      this._io.observe(this.el);
+      this._life.push(() => {
+        this._io.disconnect();
+        this._io = null;
+        this._pause.delete('offscreen');
+      });
+    }
     if (typeof ResizeObserver !== 'undefined') {
       // Handle the change in the next frame, not inside the observer callback: layout work in there
       // makes Safari report "ResizeObserver loop completed with undelivered notifications".
@@ -710,6 +727,7 @@ class Mozert {
       u.querySelectorAll('[data-lazy-bg]').forEach((b, k) => b.setAttribute('data-mozert-bg', String(k)));
       this.track.appendChild(u);
     });
+    this._tuneImages(units, keep);
     this.dom = units.slice();
     this.cloneCount = 0;
 
@@ -755,6 +773,34 @@ class Mozert {
     this._live();
     this._schedule();
     this.emit('setPosition');
+  }
+
+  // Image hints for the page speed score: the first visible picture is fetched with high priority, slides far from view
+  // get native lazy loading, and data-lazy-placeholder shows a tiny blurred picture until the real one arrives.
+  _tuneImages(units, keep) {
+    const s = this.s;
+    units.forEach((u) => {
+      u.querySelectorAll('img[data-lazy][data-lazy-placeholder]').forEach((im) => {
+        const ph = im.getAttribute('data-lazy-placeholder');
+        if (!ph) return;
+        im.style.backgroundImage = 'url("' + ph.replace(/"/g, '%22') + '")';
+        im.classList.add('mozert-blur');
+      });
+    });
+    if (!s.optimizeImages) return;
+    const start = keep ? this.current : parseInt(s.initialSlide, 10) || 0;
+    const show = Math.max(1, this._showC || 1);
+    let boosted = false;
+    units.forEach((u, i) => {
+      const seen = i >= start && i < start + show;
+      u.querySelectorAll('img[src]:not([data-lazy])').forEach((im) => {
+        if (!im.hasAttribute('decoding')) im.setAttribute('decoding', 'async');
+        if (seen) {
+          if (!boosted && !im.hasAttribute('fetchpriority')) im.setAttribute('fetchpriority', 'high');
+          boosted = true;
+        } else if (i > start + show && !im.hasAttribute('loading')) im.setAttribute('loading', 'lazy');
+      });
+    });
   }
 
   _addClones() {
@@ -1546,6 +1592,7 @@ class Mozert {
   _holdOn(reason) {
     this._pause.add(reason);
     clearTimeout(this._apTimer);
+    cancelAnimationFrame(this._apRaf);
   }
 
   _holdOff(reason) {
@@ -1718,6 +1765,7 @@ class Mozert {
         img.removeAttribute('data-mozert-loading');
         img.classList.remove('mozert-loading');
         img.classList.add('mozert-loaded');
+        img.style.backgroundImage = '';
         this._lazyClones(index, src, srcset, sizes, img);
         this.emit('lazyLoaded', img, src);
         fin();
@@ -1747,6 +1795,7 @@ class Mozert {
       c.src = src;
       c.removeAttribute('data-lazy');
       c.classList.add('mozert-loaded');
+      c.style.backgroundImage = '';
     });
   }
 }

@@ -1,5 +1,5 @@
 /*!
- * Mozert jQuery adapter v1.1.2 | MIT
+ * Mozert jQuery adapter v1.1.3 | MIT
  * Usage:  $('.slider').mozert({ dots: true });
  *         $('.slider').mozert('next');
  *         $('.slider').on('afterChange', function (event, slider, current) {});

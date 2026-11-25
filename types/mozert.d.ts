@@ -10,6 +10,12 @@ export interface MozertOptions {
   dragThreshold?: number;
   disableOnInteraction?: boolean;
   autoplayReverse?: boolean;
+  /** Pause autoplay while the slider is scrolled out of view or hidden (default true). */
+  pauseOffscreen?: boolean;
+  /** Image hints: high fetch priority for the first picture, native lazy loading far from view (default true). */
+  optimizeImages?: boolean;
+  /** Show the time until the next slide: a ring or a bar. */
+  autoplayIndicator?: false | 'ring' | 'bar' | { type?: 'ring' | 'bar' };
   stopOnLastSlide?: boolean;
   effect?: 'slide' | 'fade' | 'coverflow' | 'cube' | 'flip' | 'cards' | 'creative' | 'expand';
   expandEffect?: { extra?: number };
