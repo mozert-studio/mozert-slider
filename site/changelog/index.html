@@ -14,7 +14,17 @@
 <details class="menu"><summary aria-label="Menu"><span class="bars" aria-hidden="true"><i></i><i></i><i></i></span></summary><nav aria-label="Primary mobile"><a href="../">Home</a><a href="../features/">Features</a><a href="../examples/">Examples</a><a href="../docs/">Docs</a><a href="../installation/">Install</a><a href="../api/">API</a><a href="../blog/">Blog</a><a href="../changelog/" aria-current="page">Changelog</a></nav></details></div></header>
 <main class="wrap">
 <h1>Changelog</h1><p class="lead">Mozert follows semantic versioning.</p>
-<section class="rel"><h3>1.1.2 <span class="pill">latest</span></h3><p class="meta">2026-11-18</p><ul>
+<section class="rel"><h3>1.1.3 <span class="pill">latest</span></h3><p class="meta">2026-11-25</p><ul>
+<li>New: autoplay now waits while the slider is scrolled out of view or hidden, and resumes when it returns. Switch off with <code>pauseOffscreen: false</code>.</li>
+<li>New: <code>autoplayIndicator: 'ring'</code> or <code>'bar'</code> shows the time until the next slide. Style it with <code>--mozert-ap-color</code> and <code>--mozert-ap-size</code>.</li>
+<li>New: lightbox touch gestures. Pinch to zoom, double-tap to zoom in or out, drag to pan while zoomed, and swipe down to close. Single tap on a picture no longer zooms on touch screens; use double-tap.</li>
+<li>New: <code>data-lazy-placeholder</code> shows a tiny blurred picture until the real one has loaded. <code>data-lazy-sizes</code> is documented with <code>data-lazy-srcset</code> for responsive images.</li>
+<li>New: <code>optimizeImages</code> (on by default). The first visible picture gets <code>fetchpriority="high"</code>, pictures far from view get <code>loading="lazy"</code>, all get <code>decoding="async"</code>. Your own attributes are never changed.</li>
+<li>New: <code>--mozert-pre-ratio</code> (and <code>-sm</code>) reserve the slider height with an aspect ratio before the script runs, so the page does not jump.</li>
+<li>Fixed: a slider with nothing to scroll no longer shows the grab cursor.</li>
+<li>Fixed: autoplay countdown events stop while autoplay is paused.</li>
+<li>Types: new options <code>pauseOffscreen</code>, <code>optimizeImages</code> and <code>autoplayIndicator</code>.</li></ul></section>
+<section class="rel"><h3>1.1.2</h3><p class="meta">2026-11-18</p><ul>
 <li>New: <code>reel: true</code>, a video gallery. Slides with <code>data-video</code> or <code>data-embed</code> become video slides: play inside the slide, stop when you leave it. Options: <code>play</code>, <code>sound</code>, <code>repeat</code>, <code>next</code>, <code>controls</code>. See the Video gallery example.</li>
 <li>New: thumbnails of video slides get a play badge, and the lightbox opens a video player for them.</li>
 <li>Fixed: in an infinite slider with <code>focusOnSelect</code>, clicking a slide copy at the other end of the loop now takes the short way round instead of sweeping back through the whole strip.</li>
@@ -45,7 +55,7 @@
 <li>Autoplay: <code>autoplayReverse</code>, <code>stopOnLastSlide</code>, <code>disableOnInteraction</code>, <code>autoplayStart</code> / <code>autoplayStop</code> / <code>autoplayTimeLeft</code> events.</li>
 <li>Module API: <code>Mozert.use()</code>.</li>
 <li>Builds: UMD, ESM, minified JS/CSS, core-only bundle, TypeScript types.</li></ul></section></main>
-<footer><div class="wrap fcols"><div><img class="flogo" src="../assets/logo-stacked.png" alt="Mozert Slider" width="140" height="90"><br><strong>Mozert Slider</strong> v1.1.2<br>MIT licensed. Made by Mozert Studio.<br><code>npm i @mozert-studio/mozert-slider</code><br><a href="https://github.com/mozert-studio/mozert-slider">GitHub</a> · <a href="https://www.npmjs.com/package/@mozert-studio/mozert-slider">npm</a></div>
+<footer><div class="wrap fcols"><div><img class="flogo" src="../assets/logo-stacked.png" alt="Mozert Slider" width="140" height="90"><br><strong>Mozert Slider</strong> v1.1.3<br>MIT licensed. Made by Mozert Studio.<br><code>npm i @mozert-studio/mozert-slider</code><br><a href="https://github.com/mozert-studio/mozert-slider">GitHub</a> · <a href="https://www.npmjs.com/package/@mozert-studio/mozert-slider">npm</a></div>
 <div><a href="../features/">Features</a><a href="../examples/">Examples</a><a href="../docs/">Docs</a><a href="../installation/">Install</a></div><div><a href="../api/">API</a><a href="../blog/">Blog</a><a href="../changelog/">Changelog</a></div></div></footer>
 <script src="../assets/site.js"></script>
 <script src="../assets/mozert.min.js"></script>

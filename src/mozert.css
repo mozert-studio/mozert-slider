@@ -1,4 +1,4 @@
-/*! Mozert 1.1.2 | core styles (required) | MIT */
+/*! Mozert 1.1.3 | core styles (required) | MIT */
 .mozert-slider {
   position: relative;
   display: block;
@@ -32,6 +32,9 @@
 }
 .mozert-dragging .mozert-list {
   cursor: grabbing;
+}
+.mozert-static .mozert-list {
+  cursor: auto;
 }
 .mozert-dragging {
   user-select: none;
@@ -98,6 +101,22 @@
 img.mozert-loading {
   opacity: 0.3;
 }
+/* data-lazy-placeholder: a tiny picture shown blurred until the real one has loaded */
+img.mozert-blur {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+img.mozert-blur.mozert-loading {
+  opacity: 1;
+}
+img.mozert-blur:not(.mozert-loaded) {
+  filter: blur(14px);
+  clip-path: inset(0);
+}
+img.mozert-blur.mozert-loaded {
+  transition: opacity 0.25s ease, filter 0.35s ease;
+}
 img.mozert-loaded {
   opacity: 1;
   transition: opacity 0.25s ease;
@@ -154,7 +173,7 @@ img.mozert-loaded {
 html.mozert-lb-open{overflow:hidden}
 .mozert-lb{position:fixed;inset:0;z-index:100000;background:rgba(8,11,20,.94);color:#fff;opacity:0;transition:opacity .18s ease;display:flex;flex-direction:column}
 .mozert-lb.mozert-lb-show{opacity:1}
-.mozert-lb-stage{flex:1;min-height:0;display:grid;place-items:center;padding:56px 64px 64px;overflow:hidden;touch-action:pan-y}
+.mozert-lb-stage{flex:1;min-height:0;display:grid;place-items:center;padding:56px 64px 64px;overflow:hidden;touch-action:none}
 .mozert-lb-img{max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;cursor:zoom-in;transition:transform .25s ease;user-select:none;animation:mozert-lb-in .25s ease}
 .mozert-lb-clone{cursor:zoom-in;transition:transform .25s ease}
 .mozert-lb-zoomed .mozert-lb-img,.mozert-lb-zoomed .mozert-lb-clone{cursor:zoom-out}
@@ -194,10 +213,10 @@ html.mozert-lb-open{overflow:hidden}
 
 /* Before JS runs: lay slides out as one horizontal row so the page does not jump. Add class="mozert-pre" to the markup; init removes it.
    Optional custom properties: --mozert-pre-w (slide width, default 100%), --mozert-pre-gap, --mozert-pre-pad (side padding for centerMode),
-   --mozert-pre-h (min-height); each has an -sm twin that applies on screens up to 640px. */
-.mozert-pre{display:flex;overflow:hidden;gap:var(--mozert-pre-gap,0);padding-inline:var(--mozert-pre-pad,0);min-height:var(--mozert-pre-h,0)}
+   --mozert-pre-h (min-height), --mozert-pre-ratio (reserve the height with an aspect ratio, for example 16/9); each has an -sm twin that applies on screens up to 640px. */
+.mozert-pre{display:flex;overflow:hidden;gap:var(--mozert-pre-gap,0);padding-inline:var(--mozert-pre-pad,0);min-height:var(--mozert-pre-h,0);aspect-ratio:var(--mozert-pre-ratio,auto)}
 .mozert-pre>*{flex:0 0 var(--mozert-pre-w,100%);min-width:0}
-@media(max-width:640px){.mozert-pre{padding-inline:var(--mozert-pre-pad-sm,var(--mozert-pre-pad,0));min-height:var(--mozert-pre-h-sm,var(--mozert-pre-h,0))}.mozert-pre>*{flex-basis:var(--mozert-pre-w-sm,var(--mozert-pre-w,100%))}}
+@media(max-width:640px){.mozert-pre{aspect-ratio:var(--mozert-pre-ratio-sm,var(--mozert-pre-ratio,auto));padding-inline:var(--mozert-pre-pad-sm,var(--mozert-pre-pad,0));min-height:var(--mozert-pre-h-sm,var(--mozert-pre-h,0))}.mozert-pre>*{flex-basis:var(--mozert-pre-w-sm,var(--mozert-pre-w,100%))}}
 
 /* ---- reel: video slides (play button, inline player, thumbnail badge, lightbox video) ---- */
 .mozert-has-video { position: relative; }
@@ -228,3 +247,12 @@ html.mozert-lb-open{overflow:hidden}
 @media (max-width: 640px) {
   .mozert-vplay { width: 54px; height: 54px; }
 }
+
+/* autoplay indicator: autoplayIndicator: 'ring' | 'bar' */
+.mozert-ap{position:absolute;z-index:6;pointer-events:none;color:var(--mozert-ap-color,var(--mozert-accent,#3633f5))}
+.mozert-ap-ring{top:12px;right:12px;width:var(--mozert-ap-size,28px);height:var(--mozert-ap-size,28px);transform:rotate(-90deg)}
+.mozert-ap-ring circle{fill:none;stroke-width:3.2}
+.mozert-ap-ring .mozert-ap-bg{stroke:rgba(128,128,128,.35)}
+.mozert-ap-ring .mozert-ap-fg{stroke:currentColor;stroke-linecap:round}
+.mozert-ap-bar{left:0;right:0;bottom:0;height:3px;background:rgba(128,128,128,.25)}
+.mozert-ap-bar i{display:block;height:100%;background:currentColor;transform-origin:left center;transform:scaleX(0)}
