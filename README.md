@@ -1,7 +1,7 @@
 # Mozert Slider
 
 [![npm version](https://img.shields.io/npm/v/@mozert-studio/mozert-slider)](https://www.npmjs.com/package/@mozert-studio/mozert-slider)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/@mozert-studio/mozert-slider)](https://bundlephobia.com/package/@mozert-studio/mozert-slider)
+[![size](https://img.shields.io/badge/gzip-12.5%20KB%20core%20%7C%2026.4%20KB%20all-brightgreen)](#size-version-and-browser-support)
 [![license](https://img.shields.io/npm/l/@mozert-studio/mozert-slider)](https://github.com/mozert-studio/mozert-slider/blob/main/LICENSE)
 [![types](https://img.shields.io/npm/types/@mozert-studio/mozert-slider)](https://www.npmjs.com/package/@mozert-studio/mozert-slider)
 
